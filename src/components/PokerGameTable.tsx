@@ -11,43 +11,71 @@ import { GameContext } from "../context/GameContext";
 export default function PokerGameTable() {
   const { scoreData, currentRolledValue } = useContext(GameContext);
 
-  console.log(scoreData);
-
-  const onScoreCellPress = (name: string) => {
-    console.log("Setting: ", name);
+  const onScoreSchoolCellPress = (name: string) => {
     const updatedScore = scoreData.get;
     updatedScore.school[name] = currentRolledValue.get;
     scoreData.set((prev) => {
-      return { ...prev, updatedScore };
+      return { ...prev, ...updatedScore };
+    });
+  };
+
+  const onScoreCellPress = (name: string) => {
+    const updatedScore = scoreData.get;
+    updatedScore[name] = currentRolledValue.get;
+    scoreData.set((prev) => {
+      return { ...prev, ...updatedScore };
     });
   };
 
   const renderTablePokerSchool = () => {
-    const names: string[] = Object.keys(scoreData.get.school) as string[];
+    const names: string[] = Object.keys(scoreData.get.school);
     return names.map((name, index) => (
-      <>
-        <View key={index} style={styles.rowContainer}>
-          <View style={styles.cellContainer}>
-            <Text style={styles.cellText}>{name}</Text>
-          </View>
-          <View style={styles.cellContainer}>
-            <TouchableOpacity
-              style={styles.scoreCell}
-              onPress={() => onScoreCellPress(name)}
-            >
-              <Text style={styles.cellText}>
-                {!!scoreData.get.school[name] ? scoreData.get.school[name] : ""}
-              </Text>
-            </TouchableOpacity>
-          </View>
+      <View key={index} style={styles.rowContainer}>
+        <View style={styles.cellContainer}>
+          <Text style={styles.cellText}>{name}</Text>
         </View>
-      </>
+        <View style={styles.cellContainer}>
+          <TouchableOpacity
+            style={styles.scoreCell}
+            onPress={() => onScoreSchoolCellPress(name)}
+          >
+            <Text style={styles.cellText}>
+              {!!scoreData.get.school[name] ? scoreData.get.school[name] : ""}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    ));
+  };
+
+  const renderTablePokerRest = () => {
+    const names: string[] = Object.keys(scoreData.get);
+    names.splice(0, 1); //usuwa pierwszy element z tablicy bo to szkola TODO refactor
+    return names.map((name, index) => (
+      <View key={index} style={styles.rowContainer}>
+        <View style={styles.cellContainer}>
+          <Text style={styles.cellText}>{name}</Text>
+        </View>
+        <View style={styles.cellContainer}>
+          <TouchableOpacity
+            style={styles.scoreCell}
+            onPress={() => onScoreCellPress(name)}
+          >
+            <Text style={styles.cellText}>
+              {!!scoreData.get[name] ? scoreData.get[name] : ""}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     ));
   };
 
   return (
     <ScrollView>
-      <View style={styles.tableContainer}>{renderTablePokerSchool()}</View>
+      <View style={styles.tableContainer}>
+        {renderTablePokerSchool()}
+        {renderTablePokerRest()}
+      </View>
     </ScrollView>
   );
 }

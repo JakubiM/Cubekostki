@@ -5,11 +5,11 @@ export interface ISchool {
   four: number;
   five: number;
   six: number;
+  bonus: number;
 }
 
 export interface IPokerScore {
   school: ISchool;
-  schoolBonus: number;
   pair: number;
   twoPairs: number;
   threeOfKind: number;
@@ -34,8 +34,8 @@ export class PokerScore implements IPokerScore {
     four: 0,
     five: 0,
     six: 0,
+    bonus: 0,
   };
-  schoolBonus: number = 0;
   pair: number = 0;
   twoPairs: number = 0;
   threeOfKind: number = 0;
