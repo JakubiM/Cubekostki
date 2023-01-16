@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useContext } from "react";
 import { Button, StyleSheet, Text, Image, View } from "react-native";
+import { GameContext } from "../context/GameContext";
 
 export default function SimpleDiceRoller() {
-  const [diceRoll, setDiceRoll] = useState(1);
+  const { currentRolledValue } = useContext(GameContext);
 
   const DiceImage = [
     require("../../assets/dice/dice1.png"),
@@ -15,16 +16,19 @@ export default function SimpleDiceRoller() {
 
   const rollDice = () => {
     const roll = Math.floor(Math.random() * 6) + 1;
-    setDiceRoll(roll);
+    currentRolledValue.set(roll);
   };
 
   const getDiceImage = () => (
-    <Image source={DiceImage[diceRoll - 1]} style={{ width: 50, height: 50 }} />
+    <Image
+      source={DiceImage[currentRolledValue.get - 1]}
+      style={{ width: 50, height: 50 }}
+    />
   );
 
   return (
     <View>
-      <Text>Dice Roll: {diceRoll}</Text>
+      <Text>Dice Roll: {currentRolledValue.get}</Text>
       {getDiceImage()}
       <Button onPress={rollDice} title="Roll dice" color="#841584" />
     </View>
