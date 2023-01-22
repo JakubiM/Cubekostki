@@ -16,7 +16,7 @@ export default function PokerGameTable() {
   const onScoreSchoolCellPress = (name: string) => {
     const updatedScore = scoreData.get;
     updatedScore.school[name] = getCalculationFunction(name)(
-      rolledDiceList.valuesOnly
+      rolledDiceList.valueReps
     );
     scoreData.set((prev) => {
       return { ...prev, ...updatedScore };
@@ -25,9 +25,7 @@ export default function PokerGameTable() {
 
   const onScoreCellPress = (name: string) => {
     const updatedScore = scoreData.get;
-    updatedScore[name] = getCalculationFunction(name)(
-      rolledDiceList.valuesOnly
-    );
+    updatedScore[name] = getCalculationFunction(name)(rolledDiceList.valueReps);
     scoreData.set((prev) => {
       return { ...prev, ...updatedScore };
     });
@@ -47,7 +45,7 @@ export default function PokerGameTable() {
           >
             <TableCell
               placeholder={getCalculationFunction(name)(
-                rolledDiceList.valuesOnly
+                rolledDiceList.valueReps
               )}
               value={scoreData.get.school[name]}
             />
@@ -72,7 +70,7 @@ export default function PokerGameTable() {
           >
             <TableCell
               placeholder={getCalculationFunction(name)(
-                rolledDiceList.valuesOnly
+                rolledDiceList.valueReps
               )}
               value={scoreData.get[name]}
             />
@@ -112,7 +110,7 @@ const styles = StyleSheet.create({
     borderColor: "#007bff",
     borderRadius: 5,
     backgroundColor: "#e9ecef",
-    padding: 5,
+    // padding: 5,
     marginRight: 10,
   },
   cellText: {

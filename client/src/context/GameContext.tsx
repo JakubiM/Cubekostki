@@ -2,6 +2,17 @@ import { PokerScore } from "../model/pokerScore";
 import { createContext, Dispatch, SetStateAction, useState } from "react";
 import { IDieState } from "../model/dieState";
 
+const countReps = (diceValues: number[]): number[] => {
+  let counts = [0, 0, 0, 0, 0, 0];
+  for (let i = 0; i < diceValues.length; i++) {
+    let value = diceValues[i];
+    if (value >= 1 && value <= 6) {
+      counts[value - 1]++;
+    }
+  }
+  return counts;
+};
+
 export interface IGameContext {
   scoreData: {
     get: PokerScore;
@@ -9,6 +20,7 @@ export interface IGameContext {
   };
   rolledDiceList: {
     get: IDieState[];
+    valueReps: number[]; // [1,0,0,0,0,5] -> 1 x 'One', 5 x 'Six'
     valuesOnly: number[];
     set: Dispatch<SetStateAction<IDieState[]>>;
   };
@@ -52,6 +64,7 @@ export default ({ children }: { children: React.ReactNode }) => {
     },
     rolledDiceList: {
       get: rolledDiceList,
+      valueReps: countReps(rolledDiceList.map((dieState) => dieState.value)),
       valuesOnly: rolledDiceList.map((dieState) => dieState.value),
       set: setRolledDiceList,
     },

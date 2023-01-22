@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@react-native-material/core";
 import { StyleSheet, Text, View } from "react-native";
 import Die from "./Die";
@@ -7,6 +7,7 @@ import { IGameContext, GameContext } from "../context/GameContext";
 
 export default function DicePanel() {
   const { rolledDiceList } = useContext<IGameContext>(GameContext);
+  const [throwCount, setThrowCount] = useState<number>(0);
 
   const rollDices = () => {
     console.log("Rolling dices...");
@@ -20,6 +21,7 @@ export default function DicePanel() {
     );
 
     rolledDiceList.set(updatedDice);
+    setThrowCount((prevCount) => prevCount + 1);
   };
 
   const selectDie = (index: number) => {
@@ -53,7 +55,7 @@ const styles = StyleSheet.create({
     display: "flex",
     borderWidth: 3,
     borderColor: "red",
-    padding: "10px",
+    // padding: "10",
   },
   diceContainer: {
     display: "flex",
