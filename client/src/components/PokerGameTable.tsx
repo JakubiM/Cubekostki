@@ -7,13 +7,17 @@ import {
 } from "react-native";
 import React, { useContext } from "react";
 import { GameContext } from "../context/GameContext";
+import { getCalculationFunction } from "../utils/pokerSixDiceRecognizer";
+import TableCell from "./TableCell";
 
 export default function PokerGameTable() {
-  const { scoreData, currentRolledValue } = useContext(GameContext);
+  const { scoreData, rolledDiceList } = useContext(GameContext);
 
   const onScoreSchoolCellPress = (name: string) => {
     const updatedScore = scoreData.get;
-    updatedScore.school[name] = currentRolledValue.get;
+    updatedScore.school[name] = getCalculationFunction(name)(
+      rolledDiceList.valuesOnly
+    );
     scoreData.set((prev) => {
       return { ...prev, ...updatedScore };
     });
@@ -21,7 +25,9 @@ export default function PokerGameTable() {
 
   const onScoreCellPress = (name: string) => {
     const updatedScore = scoreData.get;
-    updatedScore[name] = currentRolledValue.get;
+    updatedScore[name] = getCalculationFunction(name)(
+      rolledDiceList.valuesOnly
+    );
     scoreData.set((prev) => {
       return { ...prev, ...updatedScore };
     });
@@ -39,9 +45,12 @@ export default function PokerGameTable() {
             style={styles.scoreCell}
             onPress={() => onScoreSchoolCellPress(name)}
           >
-            <Text style={styles.cellText}>
-              {!!scoreData.get.school[name] ? scoreData.get.school[name] : ""}
-            </Text>
+            <TableCell
+              placeholder={getCalculationFunction(name)(
+                rolledDiceList.valuesOnly
+              )}
+              value={scoreData.get.school[name]}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -61,9 +70,12 @@ export default function PokerGameTable() {
             style={styles.scoreCell}
             onPress={() => onScoreCellPress(name)}
           >
-            <Text style={styles.cellText}>
-              {!!scoreData.get[name] ? scoreData.get[name] : ""}
-            </Text>
+            <TableCell
+              placeholder={getCalculationFunction(name)(
+                rolledDiceList.valuesOnly
+              )}
+              value={scoreData.get[name]}
+            />
           </TouchableOpacity>
         </View>
       </View>

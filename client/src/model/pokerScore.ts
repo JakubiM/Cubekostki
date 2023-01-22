@@ -1,53 +1,53 @@
 export interface ISchool {
-  ones: number;
-  deuces: number;
-  three: number;
-  four: number;
-  five: number;
-  six: number;
-  bonus: number;
+  ones: number | undefined;
+  deuces: number | undefined;
+  three: number | undefined;
+  four: number | undefined;
+  five: number | undefined;
+  six: number | undefined;
+  bonus: number | undefined;
 }
 
 export interface IPokerScore {
   school: ISchool;
-  pair: number;
-  twoPairs: number;
-  threeOfKind: number;
-  fourOfKind: number;
-  fiveOfKind: number;
-  poker: number;
-  fullHouse: number;
-  fourPlusTwo: number;
-  threePlusThree: number;
-  threePairs: number;
-  smallStraight: number;
-  bigStraight: number;
-  chance: number;
-  nonZeroBonus: number;
+  pair: number | undefined;
+  twoPairs: number | undefined;
+  threeOfKind: number | undefined;
+  fourOfKind: number | undefined;
+  fiveOfKind: number | undefined;
+  poker: number | undefined;
+  fullHouse: number | undefined;
+  fourPlusTwo: number | undefined;
+  threePlusThree: number | undefined;
+  threePairs: number | undefined;
+  smallStraight: number | undefined;
+  bigStraight: number | undefined;
+  chance: number | undefined;
+  nonZeroBonus: number | undefined;
 }
 
 export class PokerScore implements IPokerScore {
   school: ISchool = {
-    ones: 0,
-    deuces: 0,
-    three: 0,
-    four: 0,
-    five: 0,
-    six: 0,
-    bonus: 0,
+    ones: undefined,
+    deuces: undefined,
+    three: undefined,
+    four: undefined,
+    five: undefined,
+    six: undefined,
+    bonus: undefined,
   };
-  pair: number = 0;
-  twoPairs: number = 0;
-  threeOfKind: number = 0;
-  fourOfKind: number = 0;
-  fiveOfKind: number = 0;
-  poker: number = 0;
-  fullHouse: number = 0;
-  fourPlusTwo: number = 0;
-  threePlusThree: number = 0;
-  threePairs: number = 0;
-  smallStraight: number = 0;
-  bigStraight: number = 0;
-  chance: number = 0;
-  nonZeroBonus: number = 0;
+  pair = undefined;
+  twoPairs = undefined;
+  threeOfKind = undefined;
+  fourOfKind = undefined;
+  fiveOfKind = undefined;
+  poker = undefined;
+  fullHouse = undefined;
+  fourPlusTwo = undefined;
+  threePlusThree = undefined;
+  threePairs = undefined;
+  smallStraight = undefined;
+  bigStraight = undefined;
+  chance = undefined;
+  nonZeroBonus = undefined;
 }
