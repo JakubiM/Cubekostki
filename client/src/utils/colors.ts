@@ -1,0 +1,7 @@
+export const Colors = {
+  BACKGROUND: "#2F2D2E",
+  CARROT_ORANGE: "#F18F01",
+  BLUE_MUNSELL: "#048BA8",
+  CHARCOAL: "#2E4057",
+  ANDROID_GREEN: "#99C24D",
+};
