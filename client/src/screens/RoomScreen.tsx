@@ -25,7 +25,7 @@ export default function RoomScreen({ route }: RoomScreenProps) {
 
   const renderRoomPlayers = () => {
     return (
-      <Box marginTop={"25%"}>
+      <Box>
         <Pressable
           bg={Colors.CARROT_ORANGE}
           boxSize={150}

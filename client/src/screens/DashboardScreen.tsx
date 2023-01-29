@@ -5,6 +5,7 @@ import { Colors } from "../utils/colors";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ScreenNavigationProps } from "../../App";
+import socket from "../utils/socket";
 
 export default function DashboardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ScreenNavigationProps>>();
@@ -13,6 +14,7 @@ export default function DashboardScreen() {
   const onButtonClick = () => {
     console.log("Your name: " + name);
     //emit event for registration...
+    socket.emit("register_player", name);
     navigation.navigate("GameTypes");
   };
 
