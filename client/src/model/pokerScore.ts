@@ -5,6 +5,7 @@ export interface ISchool {
   four: number | undefined;
   five: number | undefined;
   six: number | undefined;
+  sum: number | undefined;
   bonus: number | undefined;
 }
 
@@ -34,6 +35,7 @@ export class PokerScore implements IPokerScore {
     four: undefined,
     five: undefined,
     six: undefined,
+    sum: undefined,
     bonus: undefined,
   };
   pair = undefined;

@@ -1,13 +1,7 @@
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useContext } from "react";
 import { GameContext } from "../context/GameContext";
-import { getCalculationFunction } from "../utils/pokerSixDiceRecognizer";
+import { getBonusCalculationFunction, getCalculationFunction } from "../utils/pokerSixDiceRecognizer";
 import TableCell from "./TableCell";
 
 export default function PokerGameTable() {
@@ -15,9 +9,7 @@ export default function PokerGameTable() {
 
   const onScoreSchoolCellPress = (name: string) => {
     const updatedScore = scoreData.get;
-    updatedScore.school[name] = getCalculationFunction(name)(
-      rolledDiceList.valueReps
-    );
+    updatedScore.school[name] = getCalculationFunction(name)(rolledDiceList.valueReps);
     scoreData.set((prev) => {
       return { ...prev, ...updatedScore };
     });
@@ -39,17 +31,27 @@ export default function PokerGameTable() {
           <Text style={styles.cellText}>{name}</Text>
         </View>
         <View style={styles.cellContainer}>
-          <TouchableOpacity
-            style={styles.scoreCell}
-            onPress={() => onScoreSchoolCellPress(name)}
-          >
-            <TableCell
-              placeholder={getCalculationFunction(name)(
-                rolledDiceList.valueReps
-              )}
-              value={scoreData.get.school[name]}
-            />
-          </TouchableOpacity>
+          {name === "sum" || name === "bonus" ? (
+            <Text
+              style={{
+                fontSize: 15,
+                fontWeight: "bold",
+                color: "black",
+              }}
+            >
+              {getBonusCalculationFunction(name)(scoreData.get)}
+            </Text>
+          ) : (
+            <TouchableOpacity style={styles.scoreCell} onPress={() => onScoreSchoolCellPress(name)}>
+              <TableCell
+                placeholder={getCalculationFunction(name)(
+                  rolledDiceList.valueReps,
+                  getBonusCalculationFunction("sum")(scoreData.get)
+                )}
+                value={scoreData.get.school[name]}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     ));
@@ -64,17 +66,24 @@ export default function PokerGameTable() {
           <Text style={styles.cellText}>{name}</Text>
         </View>
         <View style={styles.cellContainer}>
-          <TouchableOpacity
-            style={styles.scoreCell}
-            onPress={() => onScoreCellPress(name)}
-          >
-            <TableCell
-              placeholder={getCalculationFunction(name)(
-                rolledDiceList.valueReps
-              )}
-              value={scoreData.get[name]}
-            />
-          </TouchableOpacity>
+          {name === "nonZeroBonus" ? (
+            <Text
+              style={{
+                fontSize: 15,
+                fontWeight: "bold",
+                color: "black",
+              }}
+            >
+              {getBonusCalculationFunction(name)(scoreData.get)}
+            </Text>
+          ) : (
+            <TouchableOpacity style={styles.scoreCell} onPress={() => onScoreCellPress(name)}>
+              <TableCell
+                placeholder={getCalculationFunction(name)(rolledDiceList.valueReps)}
+                value={scoreData.get[name]}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     ));
