@@ -21,21 +21,17 @@ export default function RoomListScreen() {
     navigation.navigate("Room", { roomId });
   };
 
-  socket.on("update_rooms", (rooms) => {
-    setRooms(rooms);
-  });
-
   const onCreateRoomClick = () => {
     socket.connect();
     console.log("Creating new room!");
-    socket.emit("create_room");
+    socket.emit("create_room", setRooms);
   };
 
   const renderRoomList = () => {
     return (
       <Box flexDirection={"column"} paddingTop={10} width={"90%"}>
         {rooms.map((room, index) => (
-          <Button marginTop={5} onPress={() => onRoomClick(room.id)}>
+          <Button key={index} marginTop={5} onPress={() => onRoomClick(room.id)}>
             <Text>
               Room {index}
               {"\n"}Players {room.players.length}

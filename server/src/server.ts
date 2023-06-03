@@ -1,8 +1,10 @@
 import http from "http";
 import express from "express";
 import { ServerSocket } from "./socket";
+import { players } from "./listeners/players";
+import { rooms } from "./listeners/rooms";
 
-const application = express();
+const application = express()
 
 /** Server Handling */
 const httpServer = http.createServer(application);
@@ -50,7 +52,7 @@ application.get("/ping", (req, res, next) => {
 
 /** Socket Information */
 application.get("/status", (req, res, next) => {
-  return res.status(200).json({ users: ServerSocket.instance.users });
+  return res.status(200).json({ players, rooms });
 });
 
 /** Error handling */
