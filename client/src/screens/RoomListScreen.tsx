@@ -6,25 +6,26 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ScreenNavigationProps } from "../../App";
 import socket from "../utils/socket";
 import { Room } from "../../../server/src/model/room";
-
+import {MESSAGE} from "../../../server/src/model/Messages";
 export default function RoomListScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ScreenNavigationProps>>();
 
   const [rooms, setRooms] = useState<Room[]>([]);
 
   useEffect(() => {
-    socket.emit("get_rooms", setRooms);
+    socket.emit(MESSAGE.GET_ROOMS, setRooms);
   }, []);
 
   const onRoomClick = (roomId: string) => {
     console.log(`Entering room ${roomId}!`);
+    socket.emit(MESSAGE.JOIN_ROOM, roomId);
     navigation.navigate("Room", { roomId });
   };
 
   const onCreateRoomClick = () => {
     socket.connect();
     console.log("Creating new room!");
-    socket.emit("create_room", setRooms);
+    socket.emit(MESSAGE.CREATE_ROOM, setRooms);
   };
 
   const renderRoomList = () => {

@@ -42,7 +42,7 @@ export class PokerScore implements IPokerScore {
   twoPairs = undefined;
   threeOfKind = undefined;
   fourOfKind = undefined;
-  fiveOfKind = undefined;
+  fiveOfKind = undefined ;
   poker = undefined;
   fullHouse = undefined;
   fourPlusTwo = undefined;
