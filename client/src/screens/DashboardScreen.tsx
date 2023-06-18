@@ -6,7 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ScreenNavigationProps } from "../../App";
 import socket from "../utils/socket";
-import { MESSAGE } from "../../../server/src/model/Messages";
+import { MESSAGE } from "../model/Messages";
 
 export default function DashboardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ScreenNavigationProps>>();

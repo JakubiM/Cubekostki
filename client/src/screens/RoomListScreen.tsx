@@ -6,7 +6,8 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ScreenNavigationProps } from "../../App";
 import socket from "../utils/socket";
 import { Room } from "../../../server/src/model/room";
-import {MESSAGE} from "../../../server/src/model/Messages";
+import { MESSAGE } from "../model/Messages";
+
 export default function RoomListScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ScreenNavigationProps>>();
 
@@ -39,7 +40,6 @@ export default function RoomListScreen() {
             </Text>
           </Button>
         ))}
-        ;
       </Box>
     );
   };

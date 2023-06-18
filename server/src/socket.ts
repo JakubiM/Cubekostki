@@ -3,6 +3,7 @@ import { Socket, Server } from "socket.io";
 import { v4 } from "uuid";
 import players from "./listeners/players";
 import rooms from "./listeners/rooms";
+import game from "./listeners/game";
 
 export class ServerSocket {
   public static instance: ServerSocket;
@@ -32,6 +33,7 @@ export class ServerSocket {
 
     rooms(socket);
     players(socket);
+    game(socket);
 
     socket.on("handshake", (callback: (uid: string, users: string[]) => void) => {
       console.info("Handshake received from: " + socket.id);

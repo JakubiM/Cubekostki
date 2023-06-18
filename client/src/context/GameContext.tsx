@@ -20,9 +20,9 @@ export interface IGameContext {
   };
   rolledDiceList: {
     get: IDieState[];
+    set: Dispatch<SetStateAction<IDieState[]>>;
     valueReps: number[]; // [1,0,0,0,0,5] -> 1 x 'One', 5 x 'Six'
     valuesOnly: number[];
-    set: Dispatch<SetStateAction<IDieState[]>>;
   };
 }
 
@@ -64,8 +64,8 @@ export default ({ children }: { children: React.ReactNode }) => {
     },
     rolledDiceList: {
       get: rolledDiceList,
-      valueReps: countReps(rolledDiceList.map((dieState) => dieState.value)),
-      valuesOnly: rolledDiceList.map((dieState) => dieState.value),
+      valueReps: countReps(!!rolledDiceList ? rolledDiceList.map((dieState) => dieState.value) : []),
+      valuesOnly: !!rolledDiceList ? rolledDiceList.map((dieState) => dieState.value) : [],
       set: setRolledDiceList,
     },
   };

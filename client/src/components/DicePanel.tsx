@@ -4,23 +4,37 @@ import { StyleSheet, Text, View } from "react-native";
 import Die from "./Die";
 import { useContext } from "react";
 import { IGameContext, GameContext } from "../context/GameContext";
+import socket from "../utils/socket";
+import { IDieState } from "../model/dieState";
+import { MESSAGE } from "../model/Messages";
 
 export default function DicePanel() {
   const { rolledDiceList } = useContext<IGameContext>(GameContext);
   const [throwCount, setThrowCount] = useState<number>(0);
 
+  const setDiceList = (newDice: IDieState[]) => {
+    console.log("Setting new dice!");
+    rolledDiceList.set(newDice);
+  }
+
   const rollDices = () => {
     console.log("Rolling dices...");
-    const updatedDice = [...rolledDiceList.get].map((dieState) =>
-      !dieState.selected
-        ? {
-            selected: false,
-            value: Math.floor(Math.random() * 6) + 1,
-          }
-        : dieState
-    );
+    // const updatedDice = [...rolledDiceList.get].map((dieState) =>
+    //   !dieState.selected
+    //     ? {
+    //         selected: false,
+    //         value: Math.floor(Math.random() * 6) + 1,
+    //       }
+    //     : dieState
+    // );
 
-    rolledDiceList.set(updatedDice);
+    // rolledDiceList.set(updatedDice);
+    if (rolledDiceList.set != null) {
+      console.log("rolledDiceList before: ", rolledDiceList.set);
+      socket.emit(MESSAGE.THROW, rolledDiceList.set, rolledDiceList.get);
+    }
+
+
     setThrowCount((prevCount) => prevCount + 1);
   };
 
@@ -31,14 +45,14 @@ export default function DicePanel() {
   };
 
   const renderSixDice = () => {
-    return rolledDiceList.get.map(({ value, selected }, index) => (
+    return rolledDiceList != null ? rolledDiceList?.get.map(({ value, selected }, index) => (
       <Die
         dieValue={value}
         selected={selected}
         onClick={() => selectDie(index)}
         key={index}
       />
-    ));
+    )) : <></>;
   };
 
   return (

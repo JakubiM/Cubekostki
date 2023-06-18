@@ -1,6 +1,6 @@
 import { PokerScore } from "./../../../client/src/model/pokerScore";
 import { Socket } from "socket.io";
-import { Room } from "../model/room";
+import { Room, ThrowCounter } from "../model/room";
 import { v4 } from "uuid";
 import { Player } from "../model/player";
 import { players } from "./players";
