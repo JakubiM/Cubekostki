@@ -4,4 +4,5 @@ export const Colors = {
   BLUE_MUNSELL: "#048BA8",
   CHARCOAL: "#2E4057",
   ANDROID_GREEN: "#99C24D",
+  RED: "#FF0000",
 };

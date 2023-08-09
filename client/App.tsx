@@ -2,35 +2,64 @@ import { DarkTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { NativeBaseProvider } from "native-base";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DashboardScreen from "./src/screens/DashboardScreen";
 import GameScreen from "./src/screens/GameScreen";
 import GameTypesScreen from "./src/screens/GameTypesScreen";
 import RoomListScreen from "./src/screens/RoomListScreen";
 import RoomScreen from "./src/screens/RoomScreen";
+import LoginScreen from "./src/screens/LoginScreen";
+import { User, onAuthStateChanged } from "firebase/auth";
+import { FIREBASE_AUTH } from "./firebase-config";
 
 export type ScreenNavigationProps = {
+  Login: any;
   Room: {
     roomId: string;
   };
-  Dashboard: any;
+  Dashboard: {
+    displayName: string | null;
+  };
   GameTypes: any;
   RoomList: any;
   Game: any;
 };
 
-export const RootStack = createNativeStackNavigator<ScreenNavigationProps>();
+const RootStack = createNativeStackNavigator();
+const AuthenticatedStack = createNativeStackNavigator<ScreenNavigationProps>();
+
+const AuthenticatedLayout = () => {
+  return (
+    <AuthenticatedStack.Navigator initialRouteName="Dashboard" screenOptions={{ headerShown: false }}>
+      <AuthenticatedStack.Screen name="Dashboard" component={DashboardScreen} />
+      <AuthenticatedStack.Screen name="GameTypes" component={GameTypesScreen} />
+      <AuthenticatedStack.Screen name="RoomList" component={RoomListScreen} />
+      <AuthenticatedStack.Screen name="Room" component={RoomScreen} />
+      <AuthenticatedStack.Screen name="Game" component={GameScreen} />
+    </AuthenticatedStack.Navigator>
+  );
+};
 
 export default function App() {
+  const [user, setUser] = useState<User | null>(null);
+  useEffect(() => {
+    onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      setUser(user);
+    });
+  }, []);
   return (
     <NativeBaseProvider>
       <NavigationContainer theme={DarkTheme}>
-        <RootStack.Navigator initialRouteName="Dashboard">
-          <RootStack.Screen name="Dashboard" component={DashboardScreen} />
-          <RootStack.Screen name="GameTypes" component={GameTypesScreen} />
-          <RootStack.Screen name="RoomList" component={RoomListScreen} />
-          <RootStack.Screen name="Room" component={RoomScreen} />
-          <RootStack.Screen name="Game" component={GameScreen} />
+        <RootStack.Navigator initialRouteName="Login">
+          {user ? (
+            <RootStack.Screen
+              name="AuthenticatedLayout"
+              component={AuthenticatedLayout}
+              options={{ headerShown: false }}
+            />
+          ) : (
+            <RootStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+          )}
         </RootStack.Navigator>
         <StatusBar style="inverted" />
       </NavigationContainer>
