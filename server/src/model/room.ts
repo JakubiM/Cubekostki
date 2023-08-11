@@ -24,7 +24,7 @@ export class ThrowCounter
 };
 
 export type Room = {
-  id: string;
+  id?: string;
   players: {playerId: string, score: PokerScore}[];
   game?: undefined;
 };

@@ -59,7 +59,7 @@ export default function PokerGameTable() {
 
   const renderTablePokerRest = () => {
     const names: string[] = Object.keys(scoreData.get);
-    names.splice(0, 1); //usuwa pierwszy element z tablicy bo to szkola TODO refactor
+    names.splice(0, 1); // usuwa pierwszy element z tablicy bo to szkola TODO refactor
     return names.map((name, index) => (
       <View key={index} style={styles.rowContainer}>
         <View style={styles.cellContainer}>

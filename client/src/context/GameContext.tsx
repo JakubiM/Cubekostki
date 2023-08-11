@@ -3,9 +3,9 @@ import { createContext, Dispatch, SetStateAction, useState } from "react";
 import { IDieState } from "../model/dieState";
 
 const countReps = (diceValues: number[]): number[] => {
-  let counts = [0, 0, 0, 0, 0, 0];
+  const counts = [0, 0, 0, 0, 0, 0];
   for (let i = 0; i < diceValues.length; i++) {
-    let value = diceValues[i];
+    const value = diceValues[i];
     if (value >= 1 && value <= 6) {
       counts[value - 1]++;
     }

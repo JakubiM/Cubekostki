@@ -16,9 +16,6 @@ const LoginScreen = () => {
   const signIn = async () => {
     setLoading(true);
     signInWithEmailAndPassword(auth, email, password)
-      .then((response) => {
-        console.log(response);
-      })
       .catch((error) => {
         console.log(JSON.stringify(error));
         setErrorMessage(error.message);
@@ -33,7 +30,6 @@ const LoginScreen = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((response) => {
         sendEmailVerification(response.user);
-        console.log(response);
       })
       .catch((error) => {
         console.log(JSON.stringify(error));

@@ -1,5 +1,5 @@
 import { DarkTheme, NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { NativeBaseProvider } from "native-base";
 import React, { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import GameTypesScreen from "./src/screens/GameTypesScreen";
 import RoomListScreen from "./src/screens/RoomListScreen";
 import RoomScreen from "./src/screens/RoomScreen";
 import LoginScreen from "./src/screens/LoginScreen";
-import { User, onAuthStateChanged } from "firebase/auth";
+import { User, getAuth, onAuthStateChanged } from "firebase/auth";
 import { FIREBASE_AUTH } from "./firebase-config";
 
 export type ScreenNavigationProps = {

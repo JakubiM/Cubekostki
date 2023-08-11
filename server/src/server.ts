@@ -1,8 +1,8 @@
+import { DBClient } from './service/dbClient';
 import http from "http";
 import express from "express";
 import { ServerSocket } from "./socket";
 import { players } from "./listeners/players";
-import { rooms } from "./listeners/rooms";
 
 const application = express()
 
@@ -51,8 +51,8 @@ application.get("/ping", (req, res, next) => {
 });
 
 /** Socket Information */
-application.get("/status", (req, res, next) => {
-  return res.status(200).json({ players, rooms });
+application.get("/status", async (req, res, next) => {
+  return res.status(200).json({ players, rooms: await DBClient.getRooms() });
 });
 
 /** Error handling */

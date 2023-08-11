@@ -1,5 +1,5 @@
 import { PokerScore } from "./../model/pokerScore";
-//author: JakubiM
+// author: JakubiM
 
 const REQ_TO_PASS = 4;
 const COUNT_OF_DICE = 6;
@@ -44,9 +44,9 @@ const xOfKind = (diceReps: number[], ofKind: number, indexToExclude = -1) => {
 };
 
 const twoPairs = (diceReps: number[]) => {
-  var firstPair = xOfKind(diceReps, 2);
-  var secondPair = xOfKind(diceReps, 2, getIndexFromXOfKindResult(firstPair, 2));
-  var fourOfKind = xOfKind(diceReps, 4);
+  const firstPair = xOfKind(diceReps, 2);
+  const secondPair = xOfKind(diceReps, 2, getIndexFromXOfKindResult(firstPair, 2));
+  const fourOfKind = xOfKind(diceReps, 4);
 
   if (Math.min(firstPair, secondPair) == 0) {
     return fourOfKind;
@@ -64,9 +64,9 @@ const poker = (diceReps: number[]) => {
 };
 
 const fullHouse = (diceReps: number[]) => {
-  var fiveOfKind = xOfKind(diceReps, 5);
-  var threeOfKind = xOfKind(diceReps, 3);
-  var pair = xOfKind(diceReps, 2, getIndexFromXOfKindResult(threeOfKind, 3));
+  const fiveOfKind = xOfKind(diceReps, 5);
+  const threeOfKind = xOfKind(diceReps, 3);
+  const pair = xOfKind(diceReps, 2, getIndexFromXOfKindResult(threeOfKind, 3));
   if (Math.min(threeOfKind, pair) == 0) {
     return fiveOfKind;
   }
@@ -74,9 +74,9 @@ const fullHouse = (diceReps: number[]) => {
 };
 
 const fourPlusTwo = (diceReps: number[]) => {
-  var sixOfKind = xOfKind(diceReps, 6);
-  var fourOfKind = xOfKind(diceReps, 4);
-  var pair = xOfKind(diceReps, 2, getIndexFromXOfKindResult(fourOfKind, 4));
+  const sixOfKind = xOfKind(diceReps, 6);
+  const fourOfKind = xOfKind(diceReps, 4);
+  const pair = xOfKind(diceReps, 2, getIndexFromXOfKindResult(fourOfKind, 4));
   if (Math.min(fourOfKind, pair) == 0) {
     return sixOfKind;
   }
@@ -84,9 +84,9 @@ const fourPlusTwo = (diceReps: number[]) => {
 };
 
 const threePlusThree = (diceReps: number[]) => {
-  var sixOfKind = xOfKind(diceReps, 6);
-  var firsThreeOfKind = xOfKind(diceReps, 3);
-  var secondThreeOfKind = xOfKind(diceReps, 3, getIndexFromXOfKindResult(firsThreeOfKind, 3));
+  const sixOfKind = xOfKind(diceReps, 6);
+  const firsThreeOfKind = xOfKind(diceReps, 3);
+  const secondThreeOfKind = xOfKind(diceReps, 3, getIndexFromXOfKindResult(firsThreeOfKind, 3));
   if (Math.min(firsThreeOfKind, secondThreeOfKind) == 0) {
     return sixOfKind;
   }
@@ -94,13 +94,13 @@ const threePlusThree = (diceReps: number[]) => {
 };
 
 const threePairs = (diceReps: number[]) => {
-  var fourPlusTwoValue = fourPlusTwo(diceReps);
+  const fourPlusTwoValue = fourPlusTwo(diceReps);
   if (fourPlusTwoValue != 0) {
     return fourPlusTwoValue;
   }
-  var firstPair = xOfKind(diceReps, 2);
-  var secondPair = xOfKind(diceReps, 2, getIndexFromXOfKindResult(firstPair, 2));
-  var thirdPair = 0;
+  const firstPair = xOfKind(diceReps, 2);
+  const secondPair = xOfKind(diceReps, 2, getIndexFromXOfKindResult(firstPair, 2));
+  let thirdPair = 0;
   for (let i = getIndexFromXOfKindResult(secondPair, 2) - 1; i >= 0; i--) {
     if (diceReps[i] > 1) {
       thirdPair = 2 * (i + 1);
@@ -132,8 +132,8 @@ const bigStraight = (diceReps: number[]) => {
 };
 
 const schoolSum = (pokerScore: PokerScore) => {
-  var sum = 0;
-  for (let value of Object.values(pokerScore.school)) {
+  let sum = 0;
+  for (const value of Object.values(pokerScore.school)) {
     sum += value === undefined ? 0 : value;
   }
   return sum > 0 ? sum : 0;

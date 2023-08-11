@@ -13,7 +13,6 @@ export default function DashboardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ScreenNavigationProps>>();
   const auth = getAuth();
   const [user, setUser] = useState<User | null>(auth.currentUser);
-  console.log(JSON.stringify(user));
   const [displayName, setDisplayName] = useState<string>("");
 
   useEffect(() => {
@@ -25,7 +24,7 @@ export default function DashboardScreen() {
   const updateUserDisplayName = () => {
     if (!user) return;
     updateProfile(user, {
-      displayName: displayName,
+      displayName,
     })
       .then(() => {
         console.log("Updated user display name!");
@@ -55,13 +54,13 @@ export default function DashboardScreen() {
 
   const onButtonClick = () => {
     if (user?.displayName) {
-      socket.emit(MESSAGE.REGISTER_PLAYER, name); //TODO remove after setting firebase
+      socket.emit(MESSAGE.REGISTER_PLAYER, user?.displayName); // TODO remove after setting firebase
       navigation.navigate("GameTypes");
       return;
     }
     updateUserDisplayName();
-    console.log("Your name: " + name);
-    socket.emit(MESSAGE.REGISTER_PLAYER, name); //TODO remove after setting firebase
+    console.log("Your name: " + user?.displayName);
+    socket.emit(MESSAGE.REGISTER_PLAYER, user?.displayName); // TODO remove after setting firebase
     navigation.navigate("GameTypes");
   };
 

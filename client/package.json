@@ -4,6 +4,7 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
+    "lint": "tslint --fix 'src/**/*.{ts,tsx}'",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web"
@@ -33,6 +34,10 @@
     "@babel/core": "^7.12.9",
     "@types/react": "~18.0.24",
     "@types/react-native": "~0.70.6",
+    "tslint": "^6.1.3",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-config-standard": "^9.0.0",
+    "tslint-react": "^5.0.0",
     "typescript": "^4.6.3"
   },
   "private": true
