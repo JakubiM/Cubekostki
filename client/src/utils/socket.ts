@@ -6,7 +6,7 @@ const socket = io("http://localhost:1337", {
   autoConnect: true,
 });
 
-socket.on("connection", () => {
+socket.on("connect", () => {
   console.log("Connected to server!");
 });
 

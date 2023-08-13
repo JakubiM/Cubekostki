@@ -1,30 +1,27 @@
-import { PokerScore } from './../../../client/src/model/pokerScore';
-import { Player } from "./player";
+import { IPlayerDto } from "./player";
 
+export interface IRoom {
+  players_ids: string[];
+  game_session_id: string;
+  host_id: string;
+}
 
-export class ThrowCounter
-{
-  public static MAX_THROW_NUMBER : number = 3;
-  private players : Player[];
-  public currentTour: Player;
-  public currentThrow: number;
-  private tourCounter: number = 2;
+export interface IRoomDto {
+  id: string;
+  host_id: string;
+  players: IPlayerDto[];
+}
 
-  constructor(players : Player[]){
-    this.players = players;
-    this.currentTour = this.nextPlayer();
-    this.currentThrow = 0;
+export const buildEmptyRoom = (): IRoom => ({
+  players_ids: [],
+  game_session_id: "",
+  host_id: "",
+});
+
+export const roomToDto = (id: string, room: IRoom): IRoomDto => {
+  return {
+    id: id,
+    host_id: room.host_id,
+    players: [],
   };
-
-  nextPlayer = () => {
-    this.tourCounter++;
-    return this.players[this.tourCounter % this.players.length]
-
-  }
-};
-
-export type Room = {
-  id?: string;
-  players: {playerId: string, score: PokerScore}[];
-  game?: undefined;
 };

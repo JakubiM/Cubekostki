@@ -1,0 +1,6 @@
+import { Socket } from "socket.io";
+
+export interface IServiceManager {
+  initialize: (socket: Socket) => void; //initializing all socket listeners...
+  onDisconnect: (socket: Socket) => void; //runs specific actions when disconnecting...
+}

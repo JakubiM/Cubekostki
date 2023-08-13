@@ -1,10 +1,9 @@
-import { DBClient } from './service/dbClient';
+import DatabaseClient from "./service/databaseClient";
 import http from "http";
 import express from "express";
 import { ServerSocket } from "./socket";
-import { players } from "./listeners/players";
 
-const application = express()
+const application = express();
 
 /** Server Handling */
 const httpServer = http.createServer(application);
@@ -32,10 +31,7 @@ application.use(express.json());
 /** Rules of our API */
 application.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
   if (req.method == "OPTIONS") {
     res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
@@ -52,7 +48,9 @@ application.get("/ping", (req, res, next) => {
 
 /** Socket Information */
 application.get("/status", async (req, res, next) => {
-  return res.status(200).json({ players, rooms: await DBClient.getRooms() });
+  return res
+    .status(200)
+    .json({ players: await DatabaseClient.Players.getAll(), rooms: await DatabaseClient.Rooms.getAll() });
 });
 
 /** Error handling */

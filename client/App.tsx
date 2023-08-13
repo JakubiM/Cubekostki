@@ -11,6 +11,8 @@ import RoomScreen from "./src/screens/RoomScreen";
 import LoginScreen from "./src/screens/LoginScreen";
 import { User, getAuth, onAuthStateChanged } from "firebase/auth";
 import { FIREBASE_AUTH } from "./firebase-config";
+import socket from "./src/utils/socket";
+import { MESSAGE } from "./src/model/Messages";
 
 export type ScreenNavigationProps = {
   Login: any;
@@ -45,6 +47,9 @@ export default function App() {
   useEffect(() => {
     onAuthStateChanged(FIREBASE_AUTH, (user) => {
       setUser(user);
+      if (user) {
+        socket.emit(MESSAGE.CREATE_CONNECTION, user?.uid);
+      } else socket.emit(MESSAGE.REMOVE_CONNECTION, socket.id);
     });
   }, []);
   return (

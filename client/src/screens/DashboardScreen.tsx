@@ -7,19 +7,25 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ScreenNavigationProps } from "../../App";
 import socket from "../utils/socket";
 import { MESSAGE } from "../model/Messages";
-import { User, getAuth, onAuthStateChanged, updateProfile } from "firebase/auth";
+import { User, getAuth, onAuthStateChanged, updateCurrentUser, updateProfile } from "firebase/auth";
 
 export default function DashboardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ScreenNavigationProps>>();
   const auth = getAuth();
   const [user, setUser] = useState<User | null>(auth.currentUser);
   const [displayName, setDisplayName] = useState<string>("");
+  const [nameUpdated, setNameUpdated] = useState<boolean>(false);
+  const [mailVerified, setMailVerified] = useState<boolean>(false);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       setUser(user);
+      if (user) {
+        setMailVerified(user.emailVerified);
+        waitForEmailVerification();
+      }
     });
-  }, []);
+  }, [nameUpdated]);
 
   const updateUserDisplayName = () => {
     if (!user) return;
@@ -28,6 +34,8 @@ export default function DashboardScreen() {
     })
       .then(() => {
         console.log("Updated user display name!");
+        setNameUpdated(true);
+        setDisplayName("");
       })
       .catch((error) => {
         console.error(error);
@@ -35,12 +43,24 @@ export default function DashboardScreen() {
   };
 
   const userCanPlay = () => {
-    if (!user || !user.displayName) return false;
+    if (!user || !user.displayName || !mailVerified) return false;
     return user.displayName.length > 0;
   };
 
+  const waitForEmailVerification = () => {
+    if (!user) return null;
+    if (!user.emailVerified) {
+      const timer = (ms: any) => new Promise((resolve) => setTimeout(resolve, ms));
+      timer(5000).then(() => {
+        console.log("Waiting for verification...");
+        user.reload();
+        waitForEmailVerification();
+      });
+    } else setMailVerified(true);
+  };
+
   const renderEmailVerificationWarning = () => {
-    if (user && user.emailVerified) return;
+    if (user && mailVerified) return;
     return (
       <>
         <Text style={styles.emailWarning}>Please verify your email before playing!</Text>
@@ -53,14 +73,8 @@ export default function DashboardScreen() {
   };
 
   const onButtonClick = () => {
-    if (user?.displayName) {
-      socket.emit(MESSAGE.REGISTER_PLAYER, user?.displayName); // TODO remove after setting firebase
-      navigation.navigate("GameTypes");
-      return;
-    }
-    updateUserDisplayName();
-    console.log("Your name: " + user?.displayName);
-    socket.emit(MESSAGE.REGISTER_PLAYER, user?.displayName); // TODO remove after setting firebase
+    if (!user) return;
+    socket.emit(MESSAGE.REGISTER_PLAYER, user.uid, user.displayName);
     navigation.navigate("GameTypes");
   };
 
