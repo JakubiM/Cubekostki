@@ -1,10 +1,33 @@
 import { Socket } from "socket.io";
-import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { IServiceManager } from "../model/serviceManager";
+import { MESSAGE } from "../model/Messages";
+import { IGameSession } from "../model/gameSession";
+import { Timestamp } from "firebase/firestore";
+import DatabaseClient from "./databaseClient";
+import { GameType } from "../model/GameType";
 
 const GameSessionManager: IServiceManager = {
   initialize: (socket: Socket): void => {
-    throw new Error("Function not implemented.");
+    socket.on(MESSAGE.START_GAME, async (roomId: string) => {
+      console.log(`Starting game for room ${roomId}...`);
+      const players = await DatabaseClient.Players.getByRoomId(roomId);
+
+      const gameScoresIds: string[] = await Promise.all(
+        players.map((p) => DatabaseClient.GameScores.create(GameType.POKER))
+      );
+
+      const updatedPlayers = await Promise.all(
+        gameScoresIds.map((gameScoreId, index) => {
+          const updatedPlayer = players.at(index);
+          if (updatedPlayer && updatedPlayer.id) {
+            updatedPlayer.current_score_id = gameScoreId;
+            return DatabaseClient.Players.update(updatedPlayer, updatedPlayer.id);
+          }
+        })
+      );
+      if (!updatedPlayers.every((p) => p !== undefined)) return;
+      DatabaseClient.GameSessions.create(updatedPlayers);
+    });
   },
   onDisconnect: (socket: Socket): void => {
     throw new Error("Function not implemented.");

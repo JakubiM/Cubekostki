@@ -21,6 +21,7 @@ const RoomManager: IServiceManager = {
       DatabaseClient.Rooms.update(room, roomId);
     });
     socket.on(MESSAGE.GET_ROOMS, (setRooms: (rooms: IRoomDto[]) => {}) => {
+      console.log("socket.on(MESSAGE.GET_ROOMS)");
       DatabaseClient.Rooms.getAll().then(setRooms);
     });
   },

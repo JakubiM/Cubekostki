@@ -2,9 +2,9 @@
   "name": "cubekostki-server",
   "version": "1.0.0",
   "description": "This is server for a \"Cubekostki\" game",
-  "main": "dist/src/server.js",
+  "main": "dist/server/src/server.js",
   "scripts": {
-    "start": "concurrently \"tsc -w\" \"nodemon dist/src/server.js\""
+    "start": "concurrently \"tsc -w\" \"nodemon dist/server/src/server.js\""
   },
   "author": "Daniel",
   "license": "MIT",

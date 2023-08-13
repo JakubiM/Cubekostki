@@ -1,5 +1,6 @@
 import {
   DocumentData,
+  Timestamp,
   addDoc,
   collection,
   deleteDoc,
@@ -12,8 +13,11 @@ import {
 } from "firebase/firestore";
 import { FIRESTORE_DB } from "../../firebase-config";
 import { IRoom, IRoomDto, buildEmptyRoom } from "../model/room";
-import { IPlayerDto, buildNewPlayer } from "../model/player";
+import { IPlayer, IPlayerDto, buildNewPlayer } from "../model/player";
 import { IActiveConnection } from "../model/activeConnection";
+import { IGameSession } from "../model/gameSession";
+import { IGameScore, buildEmptyScore } from "../model/gameScore";
+import { GameType } from "../model/GameType";
 
 const Collection = {
   ROOMS: "rooms",
@@ -36,9 +40,12 @@ const DatabaseClient = {
     },
     getByIdForClient: async (id: string): Promise<IRoomDto> => {
       const roomDocument = await getDocumentById(Collection.ROOMS, id);
+      console.log(`roomDocument: ${roomDocument}`);
       const room: IRoom = roomDocument.data();
-      const playerDocument: DocumentData[] = await getDocumentsByIds(Collection.PLAYERS, room.players_ids);
-      const roomPlayersDto: IPlayerDto[] = playerDocument.map((doc) => ({ id: doc.id, name: doc.data().name }));
+      const playerDocuments: DocumentData[] = await getDocumentsByIds(Collection.PLAYERS, room.players_ids);
+      console.log(`playerDocuments: ${playerDocuments}`);
+
+      const roomPlayersDto: IPlayerDto[] = playerDocuments.map((doc) => ({ id: doc.id, name: doc.data().name }));
       return {
         id: roomDocument.id,
         host_id: room.host_id,
@@ -50,8 +57,12 @@ const DatabaseClient = {
       return Promise.all(
         roomDocuments.map(async (roomDocument) => {
           const room: IRoom = await roomDocument.data();
-          const playerDocument: DocumentData[] = await getDocumentsByIds(Collection.PLAYERS, room.players_ids);
-          const roomPlayersDto: IPlayerDto[] = playerDocument.map((doc) => ({ id: doc.id, name: doc.data().name }));
+          console.log(`room: ${room}`);
+
+          const playerDocuments: DocumentData[] = await getDocumentsByIds(Collection.PLAYERS, room.players_ids);
+          console.log(`playerDocuments: ${playerDocuments}`);
+
+          const roomPlayersDto: IPlayerDto[] = playerDocuments.map((doc) => ({ id: doc.id, name: doc.data().name }));
           return {
             id: roomDocument.id,
             host_id: room.host_id,
@@ -61,14 +72,13 @@ const DatabaseClient = {
       );
     },
     update: async (room: IRoom, id: string) => {
-      await setDoc(doc(collection(FIRESTORE_DB, Collection.ROOMS), id), room)
-        .then(() => console.info(`[DatabaseClient] Room[${id}] updated!`))
-        .catch((err) => console.error(`[DatabaseClient] Room[${id}] update error: ${err.message}!`));
+      updateDocument(Collection.ROOMS, room, id);
     },
   },
   Players: {
     create: async (account_id: string, name: string): Promise<string> => {
-      return (await addDoc(collection(FIRESTORE_DB, Collection.PLAYERS), buildNewPlayer(account_id, name))).id;
+      const newPlayer: IPlayer = buildNewPlayer(account_id, name);
+      return addNewDocument(Collection.PLAYERS, newPlayer);
     },
     getAll: async (): Promise<IPlayerDto[]> => {
       return (await getAllDocuments(Collection.PLAYERS)).map((doc) => doc.data());
@@ -82,15 +92,23 @@ const DatabaseClient = {
           }
         : null;
     },
+    getByRoomId: async (room_id: string): Promise<IPlayer[]> => {
+      const room = (await getDocumentById(Collection.ROOMS, room_id)).data();
+      const playerDocuments: DocumentData[] = await getDocumentsByIds(Collection.PLAYERS, room.players_ids);
+      return playerDocuments.map((doc) => ({ id: doc.id, ...doc.data() } as IPlayer));
+    },
+    update: async (player: IPlayer, id: string): Promise<IPlayer> => {
+      await updateDocument(Collection.PLAYERS, player, id);
+      return (await getDocumentById(Collection.PLAYERS, id)).data();
+    },
   },
   ActiveConnections: {
     create: async (socket_id: string, account_id: string): Promise<string> => {
-      return (
-        await addDoc(collection(FIRESTORE_DB, Collection.ACTIVE_CONNECTIONS), {
-          socket_id: socket_id,
-          account_id: account_id,
-        } as IActiveConnection)
-      ).id;
+      const newConnection: IActiveConnection = {
+        socket_id: socket_id,
+        account_id: account_id,
+      };
+      return addNewDocument(Collection.ACTIVE_CONNECTIONS, newConnection);
     },
     getBySocketId: async (socket_id: string): Promise<IActiveConnection> => {
       const document = await getDocumentByFieldEquals(Collection.ACTIVE_CONNECTIONS, "socket_id", socket_id);
@@ -108,8 +126,43 @@ const DatabaseClient = {
       (await getDocs(collectionRef)).forEach((doc) => deleteDoc(doc.ref));
     },
   },
+  GameSessions: {
+    create: async (players: IPlayer[]) => {
+      const newGameSession: IGameSession = {
+        created_date: Timestamp.now(),
+        ended: false,
+        players: players,
+        players_turns: new Array(players.length),
+      };
+      addNewDocument(Collection.GAME_SESSIONS, newGameSession);
+    },
+  },
+  GameScores: {
+    create: async (game_type: GameType): Promise<string> => {
+      const newGameScore: IGameScore = {
+        game_type: game_type,
+        score: buildEmptyScore(game_type),
+        created_date: Timestamp.now(),
+        active: true,
+      };
+      return addNewDocument(Collection.GAME_SCORES, newGameScore);
+    },
+  },
 };
 
+const addNewDocument = async (collectionName: string, document: any): Promise<string> => {
+  return (await addDoc(collection(FIRESTORE_DB, collectionName), document)).id;
+};
+
+const updateDocument = async (collectionName: string, document: any, documentId: string) => {
+  setDoc(doc(collection(FIRESTORE_DB, collectionName), documentId), document)
+    .then(() => console.info(`[DatabaseClient] Document[${documentId}] updated in collection ${collectionName}!`))
+    .catch((err) =>
+      console.error(
+        `[DatabaseClient] Document[${documentId}] in collection ${collectionName} update error: ${err.message}!`
+      )
+    );
+};
 const getAllDocuments = async (collectionName: string): Promise<DocumentData[]> => {
   return (await getDocs(collection(FIRESTORE_DB, collectionName))).docs;
 };
@@ -120,7 +173,7 @@ const getDocumentById = async <T>(collectionName: string, id: string): Promise<D
 };
 
 const getDocumentsByIds = async (collectionName: string, ids: string[]): Promise<DocumentData[]> => {
-  return ids.map(async (id) => await getDocumentById(collectionName, id));
+  return Promise.all(ids.map(async (id) => await getDocumentById(collectionName, id)));
 };
 
 const getDocumentByFieldEquals = async (

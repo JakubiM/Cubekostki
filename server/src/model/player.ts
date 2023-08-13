@@ -1,4 +1,5 @@
 export interface IPlayer {
+  id?: string;
   account_id: string;
   name: string;
   current_score_id: string;
