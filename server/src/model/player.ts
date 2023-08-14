@@ -3,6 +3,7 @@ export interface IPlayer {
   account_id: string;
   name: string;
   current_score_id: string;
+  current_room_id: string;
   game_sessions_ids: string[];
 }
 
@@ -15,6 +16,7 @@ export const buildNewPlayer = (accountId: string, name: string): IPlayer => ({
   account_id: accountId,
   name,
   current_score_id: "",
+  current_room_id: "",
   game_sessions_ids: [],
 });
 

@@ -37,7 +37,7 @@ export class ServerSocket {
       console.info("Disconnect received from: " + socket.id);
       // TODO uncomment after implementing disconnect handlers!
       // PlayerManager.onDisconnect(socket);
-      // RoomManager.onDisconnect(socket);
+      RoomManager.onDisconnect(socket);
       // GameSessionManager.onDisconnect(socket);
       ActiveConnectionManager.onDisconnect(socket);
     });

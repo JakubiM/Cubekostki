@@ -83,12 +83,12 @@ const DatabaseClient = {
     getAll: async (): Promise<IPlayerDto[]> => {
       return (await getAllDocuments(Collection.PLAYERS)).map((doc) => doc.data());
     },
-    getByAccountId: async (account_id: string): Promise<IPlayerDto | null> => {
+    getByAccountId: async (account_id: string): Promise<IPlayer | null> => {
       const document = await getDocumentByFieldEquals(Collection.PLAYERS, "account_id", account_id);
       return document
         ? {
             id: document.id,
-            name: document.data().name,
+            ...document.data(),
           }
         : null;
     },
