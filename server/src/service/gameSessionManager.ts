@@ -23,9 +23,10 @@ const GameSessionManager: IServiceManager = {
             updatedPlayer.current_score_id = gameScoreId;
             return DatabaseClient.Players.update(updatedPlayer, updatedPlayer.id);
           }
+          console.log("[GameSessionManager] couldn't assign gameScore id to player at " + index);
+          return players[0];
         })
       );
-      if (!updatedPlayers.every((p) => p !== undefined)) return;
       DatabaseClient.GameSessions.create(updatedPlayers);
     });
   },

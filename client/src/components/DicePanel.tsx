@@ -19,20 +19,20 @@ export default function DicePanel() {
 
   const rollDices = () => {
     console.log("Rolling dices...");
-    // const updatedDice = [...rolledDiceList.get].map((dieState) =>
-    //   !dieState.selected
-    //     ? {
-    //         selected: false,
-    //         value: Math.floor(Math.random() * 6) + 1,
-    //       }
-    //     : dieState
-    // );
+    const updatedDice = [...rolledDiceList.get].map((dieState) =>
+      !dieState.selected
+        ? {
+            selected: false,
+            value: Math.floor(Math.random() * 6) + 1,
+          }
+        : dieState
+    );
 
-    // rolledDiceList.set(updatedDice);
-    if (rolledDiceList.set != null) {
-      console.log("rolledDiceList before: ", rolledDiceList.set);
-      socket.emit(MESSAGE.THROW, rolledDiceList.set, rolledDiceList.get);
-    }
+    rolledDiceList.set(updatedDice);
+    // if (rolledDiceList.set != null) {
+    //   console.log("rolledDiceList before: ", rolledDiceList.set);
+    //   socket.emit(MESSAGE.THROW, rolledDiceList.set, rolledDiceList.get);
+    // }
 
 
     setThrowCount((prevCount) => prevCount + 1);

@@ -3,19 +3,25 @@ import { GameType } from "./GameType";
 
 export const UNDEFINED_SCORE: number = -666;
 
+export interface IScoreColumn {
+  col: number; //n columns for each score values
+  scores: number[]
+}
+
 export interface IGameScore {
   id?: string;
   game_type: GameType;
-  score: number[][]; // n columns for each score values
+  scoreTable: IScoreColumn[];
   created_date: Timestamp;
   active: boolean;
 }
 
-export const buildEmptyScore = (game_type: GameType): number[][] => {
+export const buildEmptyScore = (game_type: GameType): IScoreColumn[] => {
   switch (game_type) {
     case GameType.POKER:
-      return [
-        [
+      return [{
+        col: 0,
+        scores: [
           UNDEFINED_SCORE,
           UNDEFINED_SCORE,
           UNDEFINED_SCORE,
@@ -37,7 +43,7 @@ export const buildEmptyScore = (game_type: GameType): number[][] => {
           UNDEFINED_SCORE,
           UNDEFINED_SCORE,
           0,
-        ],
-      ];
+        ]
+      }]
   }
 };

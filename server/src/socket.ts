@@ -31,7 +31,7 @@ export class ServerSocket {
     PlayerManager.initialize(socket);
     RoomManager.initialize(socket);
     ActiveConnectionManager.initialize(socket);
-    // GameSessionManager.initialize(socket);
+    GameSessionManager.initialize(socket);
 
     socket.on("disconnect", () => {
       console.info("Disconnect received from: " + socket.id);

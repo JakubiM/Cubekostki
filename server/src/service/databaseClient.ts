@@ -11,7 +11,7 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
-import { FIRESTORE_DB } from "../../firebase-config";
+import { FIREBASE_DB } from "../../firebase-config";
 import { IRoom, IRoomDto, buildEmptyRoom } from "../model/room";
 import { IPlayer, IPlayerDto, buildNewPlayer } from "../model/player";
 import { IActiveConnection } from "../model/activeConnection";
@@ -30,7 +30,7 @@ const Collection = {
 const DatabaseClient = {
   Rooms: {
     createEmpty: async () => {
-      await addDoc(collection(FIRESTORE_DB, Collection.ROOMS), buildEmptyRoom())
+      await addDoc(collection(FIREBASE_DB, Collection.ROOMS), buildEmptyRoom())
         .then((doc) => console.log(`Added new room with id=${doc.id}`))
         .catch((err) => console.error(`[DatabaseClient] Room create error: ${err.message}!`));
     },
@@ -122,7 +122,7 @@ const DatabaseClient = {
     deleteBySocketId: async (socket_id: string) =>
       deleteDocumentByFieldEquals(Collection.ACTIVE_CONNECTIONS, "socket_id", socket_id),
     deleteAll: async () => {
-      const collectionRef = collection(FIRESTORE_DB, Collection.ACTIVE_CONNECTIONS);
+      const collectionRef = collection(FIREBASE_DB, Collection.ACTIVE_CONNECTIONS);
       (await getDocs(collectionRef)).forEach((doc) => deleteDoc(doc.ref));
     },
   },
@@ -141,7 +141,7 @@ const DatabaseClient = {
     create: async (game_type: GameType): Promise<string> => {
       const newGameScore: IGameScore = {
         game_type: game_type,
-        score: buildEmptyScore(game_type),
+        scoreTable: buildEmptyScore(game_type),
         created_date: Timestamp.now(),
         active: true,
       };
@@ -151,11 +151,11 @@ const DatabaseClient = {
 };
 
 const addNewDocument = async (collectionName: string, document: any): Promise<string> => {
-  return (await addDoc(collection(FIRESTORE_DB, collectionName), document)).id;
+  return (await addDoc(collection(FIREBASE_DB, collectionName), document)).id;
 };
 
 const updateDocument = async (collectionName: string, document: any, documentId: string) => {
-  setDoc(doc(collection(FIRESTORE_DB, collectionName), documentId), document)
+  setDoc(doc(collection(FIREBASE_DB, collectionName), documentId), document)
     .then(() => console.info(`[DatabaseClient] Document[${documentId}] updated in collection ${collectionName}!`))
     .catch((err) =>
       console.error(
@@ -164,11 +164,11 @@ const updateDocument = async (collectionName: string, document: any, documentId:
     );
 };
 const getAllDocuments = async (collectionName: string): Promise<DocumentData[]> => {
-  return (await getDocs(collection(FIRESTORE_DB, collectionName))).docs;
+  return (await getDocs(collection(FIREBASE_DB, collectionName))).docs;
 };
 
 const getDocumentById = async <T>(collectionName: string, id: string): Promise<DocumentData> => {
-  const document = await getDoc(doc(FIRESTORE_DB, collectionName, id));
+  const document = await getDoc(doc(FIREBASE_DB, collectionName, id));
   return document;
 };
 
@@ -181,13 +181,13 @@ const getDocumentByFieldEquals = async (
   fieldName: string,
   fieldValue: string
 ): Promise<DocumentData | null> => {
-  const q = query(collection(FIRESTORE_DB, collectionName), where(fieldName, "==", fieldValue));
+  const q = query(collection(FIREBASE_DB, collectionName), where(fieldName, "==", fieldValue));
   const querySnapshot = await getDocs(q);
   return !querySnapshot.empty ? querySnapshot.docs[0] : null;
 };
 
 const deleteDocumentByFieldEquals = async (collectionName: string, fieldName: string, fieldValue: string) => {
-  const q = query(collection(FIRESTORE_DB, collectionName), where(fieldName, "==", fieldValue));
+  const q = query(collection(FIREBASE_DB, collectionName), where(fieldName, "==", fieldValue));
   const querySnapshot = await getDocs(q);
   if (querySnapshot.empty) {
     console.warn(
