@@ -66,7 +66,6 @@ export default function App() {
             <RootStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
           )}
         </RootStack.Navigator>
-        <StatusBar style="inverted" />
       </NavigationContainer>
     </NativeBaseProvider>
   );

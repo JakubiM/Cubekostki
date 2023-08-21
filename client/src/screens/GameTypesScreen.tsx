@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, Button } from "native-base";
+import { StyleSheet } from "react-native";
+import { Box, Button, Text } from "native-base";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Colors } from "../utils/colors";
@@ -15,31 +16,52 @@ export default function GameTypesScreen() {
 
   return (
     <Box flex={1} bg={Colors.BACKGROUND} alignItems="center" justifyContent="center">
-      <Box>
+      <Text style={styles.title} lineHeight={"3xl"}>
+        What do you want to play today?
+      </Text>
+      <Box width={"80%"}>
         <Button
-          size="lg"
-          colorScheme="coolGray"
-          textAlign="center"
+          variant="outline"
+          style={styles.button}
           onPress={() => {
             onGameModeSelect("Dice Poker");
           }}
         >
-          Kościany Poker
+          <Text fontSize={25} color={Colors.PRIMARY_TEXT} textAlign={"center"}>
+            Dice poker
+          </Text>
         </Button>
-        <Button
-          size="lg"
-          colorScheme="trueGray"
-          textAlign="center"
-          alignContent={"center"}
-          marginTop={"10"}
-          disabled
-        >
-          Yahtzee
+        <Button variant="outline" style={styles.disabledButton} disabled>
+          <Text fontSize={25} color={Colors.PRIMARY_TEXT} textAlign={"center"}>
+            Yahtzee
+          </Text>
         </Button>
-        <Button size="lg" colorScheme="trueGray" marginTop={"10"} disabled>
-          Kości z kurnika
+        <Button variant="outline" style={styles.disabledButton} disabled>
+          <Text fontSize={25} color={Colors.PRIMARY_TEXT} textAlign={"center"}>
+            Kurnik dice
+          </Text>
         </Button>
       </Box>
     </Box>
   );
 }
+
+const styles = StyleSheet.create({
+  title: {
+    textAlign: "center",
+    color: Colors.PRIMARY_TEXT,
+    fontSize: 30,
+    marginBottom: "50%",
+    padding: "5%",
+  },
+  button: {
+    borderRadius: 10,
+    marginBottom: "5%",
+    backgroundColor: Colors.PRIMARY_BUTTON,
+  },
+  disabledButton: {
+    marginBottom: "5%",
+    borderRadius: 10,
+    backgroundColor: Colors.CHARCOAL,
+  },
+});

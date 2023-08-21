@@ -1,6 +1,6 @@
-import { Text, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Box, Button, Input } from "native-base";
+import { Box, Button, Icon, Input, Text } from "native-base";
 import { Colors } from "../utils/colors";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -8,24 +8,26 @@ import { ScreenNavigationProps } from "../../App";
 import socket from "../utils/socket";
 import { MESSAGE } from "../model/Messages";
 import { User, getAuth, onAuthStateChanged, updateCurrentUser, updateProfile } from "firebase/auth";
+import { StatusBar } from "expo-status-bar";
+import { FontAwesome } from "@expo/vector-icons";
 
 export default function DashboardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ScreenNavigationProps>>();
   const auth = getAuth();
   const [user, setUser] = useState<User | null>(auth.currentUser);
   const [displayName, setDisplayName] = useState<string>("");
-  const [nameUpdated, setNameUpdated] = useState<boolean>(false);
   const [mailVerified, setMailVerified] = useState<boolean>(false);
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       if (user) {
         setMailVerified(user.emailVerified);
-        waitForEmailVerification();
+        waitForEmailVerification(10);
       }
     });
-  }, [nameUpdated]);
+    return () => unsubscribe();
+  }, []);
 
   const updateUserDisplayName = () => {
     if (!user) return;
@@ -34,7 +36,6 @@ export default function DashboardScreen() {
     })
       .then(() => {
         console.log("Updated user display name!");
-        setNameUpdated(true);
         setDisplayName("");
       })
       .catch((error) => {
@@ -47,14 +48,15 @@ export default function DashboardScreen() {
     return user.displayName.length > 0;
   };
 
-  const waitForEmailVerification = () => {
+  const waitForEmailVerification = (trials: number) => {
     if (!user) return null;
     if (!user.emailVerified) {
+      if (trials <= 0) return;
       const timer = (ms: any) => new Promise((resolve) => setTimeout(resolve, ms));
       timer(5000).then(() => {
-        console.log("Waiting for verification...");
+        console.log(`Waiting for verification... ${trials}`);
         user.reload();
-        waitForEmailVerification();
+        waitForEmailVerification(--trials);
       });
     } else setMailVerified(true);
   };
@@ -63,7 +65,7 @@ export default function DashboardScreen() {
     if (user && mailVerified) return;
     return (
       <>
-        <Text style={styles.emailWarning}>Please verify your email before playing!</Text>
+        <Text style={styles.emailWarning}>Please verify your email!</Text>
       </>
     );
   };
@@ -72,7 +74,7 @@ export default function DashboardScreen() {
     updateUserDisplayName();
   };
 
-  const onButtonClick = () => {
+  const onGameOnButtonClick = () => {
     if (!user) return;
     socket.emit(MESSAGE.REGISTER_PLAYER, user.uid, user.displayName);
     navigation.navigate("GameTypes");
@@ -84,55 +86,92 @@ export default function DashboardScreen() {
   };
 
   return (
-    <Box flex={1} bg={Colors.BACKGROUND} alignItems="center" justifyContent="center">
+    <Box style={styles.container}>
+      <StatusBar translucent={true} style="dark" />
+
       {user?.displayName ? (
         <>
-          <Text style={styles.text}>Hello {user?.displayName}!</Text>
-          {renderEmailVerificationWarning()}
+          <Text style={styles.title} paddingTop={"10%"}>
+            Hello {user?.displayName}!
+          </Text>
+          <Text style={styles.secondaryText}>Thanks for playing the best dice game ever!</Text>
+          {user && mailVerified ? (
+            <Button variant="outline" style={styles.button} disabled={!userCanPlay()} onPress={onGameOnButtonClick}>
+              <Text fontSize={25} color={Colors.PRIMARY_TEXT}>
+                GAME ON!
+              </Text>
+            </Button>
+          ) : (
+            renderEmailVerificationWarning()
+          )}
         </>
       ) : (
         <>
-          <Text style={styles.text}>Enter your name!</Text>
+          <Text style={styles.secondaryText} marginBottom={"10%"}>
+            Hey, you have to choose your name before starting the game. This name will be visible for all players and on
+            the leaderboards.
+          </Text>
           <Input
+            InputLeftElement={
+              <Icon
+                name="gamepad"
+                as={FontAwesome}
+                size={"xl"}
+                color={Colors.SECONDARY_TEXT}
+                minW={"10%"}
+                marginLeft={"5%"}
+              />
+            }
             style={styles.input}
-            variant="rounded"
-            placeholder=""
-            size="2xl"
-            width={"80%"}
+            variant="outline"
+            placeholder="Enter your nickname"
             maxLength={20}
-            onChangeText={(e) => setDisplayName(e)}
+            onChangeText={(text) => setDisplayName(text)}
           />
           <Button
-            borderRadius="full"
-            colorScheme={displayName.length === 0 ? "blueGray" : "success"}
+            variant="outline"
             style={styles.button}
-            disabled={displayName.length === 0}
+            disabled={displayName.length < 5}
             onPress={onSetNameButtonClick}
           >
-            Choose your name
+            <Text fontSize={25} color={Colors.PRIMARY_TEXT}>
+              Choose your name
+            </Text>
           </Button>
         </>
       )}
-      <Button
-        borderRadius="full"
-        colorScheme={!userCanPlay() ? "blueGray" : "success"}
-        style={styles.button}
-        disabled={!userCanPlay()}
-        onPress={onButtonClick}
-      >
-        GAME ON!
-      </Button>
-      <Button borderRadius="full" colorScheme={"danger"} style={styles.button} onPress={onLogoutClick}>
-        Log out!
+      <Button colorScheme={"danger"} style={styles.logoutButton} onPress={onLogoutClick}>
+        <Text fontSize={25} color={Colors.PRIMARY_TEXT}>
+          Log out!
+        </Text>
       </Button>
     </Box>
   );
 }
 
 const styles = StyleSheet.create({
-  text: {
-    color: Colors.CARROT_ORANGE,
+  container: {
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: Colors.BACKGROUND,
+    padding: "10%",
+    paddingTop: "50%",
+  },
+  secondaryText: {
+    color: Colors.SECONDARY_TEXT,
+    textAlign: "center",
+    fontStyle: "italic",
+    fontSize: 20,
+    paddingBottom: 20,
+  },
+  title: {
+    color: Colors.PRIMARY_TEXT,
     fontSize: 40,
+    paddingBottom: 20,
+  },
+  text: {
+    color: Colors.PRIMARY_TEXT,
+    fontSize: 32,
     paddingBottom: 20,
   },
   emailWarning: {
@@ -141,12 +180,23 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   input: {
-    color: Colors.ANDROID_GREEN,
-    fontSize: 32,
+    fontSize: 26,
     textAlign: "center",
   },
   button: {
-    marginTop: 15,
-    width: "50%",
+    position: "absolute",
+    bottom: 0,
+    marginBottom: "40%",
+    width: "100%",
+    borderRadius: 10,
+    backgroundColor: Colors.PRIMARY_BUTTON,
+  },
+  logoutButton: {
+    position: "absolute",
+    bottom: 0,
+    marginBottom: "10%",
+    width: "100%",
+    borderRadius: 10,
+    backgroundColor: Colors.SECONDARY_BUTTON,
   },
 });

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Button } from "@react-native-material/core";
 import { StyleSheet, Text, View } from "react-native";
 import Die from "./Die";
 import { useContext } from "react";
@@ -7,6 +6,7 @@ import { IGameContext, GameContext } from "../context/GameContext";
 import socket from "../utils/socket";
 import { IDieState } from "../model/dieState";
 import { MESSAGE } from "../model/Messages";
+import { Button } from "native-base";
 
 export default function DicePanel() {
   const { rolledDiceList } = useContext<IGameContext>(GameContext);
@@ -15,7 +15,7 @@ export default function DicePanel() {
   const setDiceList = (newDice: IDieState[]) => {
     console.log("Setting new dice!");
     rolledDiceList.set(newDice);
-  }
+  };
 
   const rollDices = () => {
     console.log("Rolling dices...");
@@ -34,7 +34,6 @@ export default function DicePanel() {
     //   socket.emit(MESSAGE.THROW, rolledDiceList.set, rolledDiceList.get);
     // }
 
-
     setThrowCount((prevCount) => prevCount + 1);
   };
 
@@ -45,21 +44,20 @@ export default function DicePanel() {
   };
 
   const renderSixDice = () => {
-    return rolledDiceList != null ? rolledDiceList?.get.map(({ value, selected }, index) => (
-      <Die
-        dieValue={value}
-        selected={selected}
-        onClick={() => selectDie(index)}
-        key={index}
-      />
-    )) : <></>;
+    return rolledDiceList != null ? (
+      rolledDiceList?.get.map(({ value, selected }, index) => (
+        <Die dieValue={value} selected={selected} onClick={() => selectDie(index)} key={index} />
+      ))
+    ) : (
+      <></>
+    );
   };
 
   return (
     <View style={styles.container}>
       <Text>DicePanel</Text>
       <View style={styles.diceContainer}>{renderSixDice()}</View>
-      <Button onPress={rollDices} title="Throw" />
+      <Button onPress={rollDices}>Throw</Button>
     </View>
   );
 }
