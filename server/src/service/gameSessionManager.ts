@@ -1,10 +1,12 @@
 import { Socket } from "socket.io";
 import { IServiceManager } from "../model/serviceManager";
 import { MESSAGE } from "../model/Messages";
-import { IGameSession } from "../model/gameSession";
-import { Timestamp } from "firebase/firestore";
 import DatabaseClient from "./databaseClient";
 import { GameType } from "../model/GameType";
+
+const DiceToPlayerMap = new Map<string, number[]>(); //account_id => key
+const createEmptyDiceSet = (): number[] => [0, 0, 0, 0, 0, 0];
+const isEmptyDiceSet = (dice: number[]): boolean => dice.some((die) => die === 0);
 
 const GameSessionManager: IServiceManager = {
   initialize: (socket: Socket): void => {
@@ -13,7 +15,10 @@ const GameSessionManager: IServiceManager = {
       const players = await DatabaseClient.Players.getByRoomId(roomId);
 
       const gameScoresIds: string[] = await Promise.all(
-        players.map((p) => DatabaseClient.GameScores.create(GameType.POKER))
+        players.map((p) => {
+          DiceToPlayerMap.set(p.account_id, createEmptyDiceSet());
+          return DatabaseClient.GameScores.create(GameType.POKER);
+        })
       );
 
       const updatedPlayers = await Promise.all(
@@ -28,6 +33,16 @@ const GameSessionManager: IServiceManager = {
         })
       );
       DatabaseClient.GameSessions.create(updatedPlayers);
+    });
+
+    socket.on(MESSAGE.THROW, (account_id: string, diceToReroll: boolean[]) => {
+      const playerDice = DiceToPlayerMap.get(account_id);
+      if (!playerDice) {
+        console.warn(`Couldn't find player dice by acc_id: ${account_id}`);
+        return;
+      }
+      if (isEmptyDiceSet(playerDice)) {
+      }
     });
   },
   onDisconnect: (socket: Socket): void => {

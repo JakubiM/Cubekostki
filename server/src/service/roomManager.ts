@@ -11,8 +11,7 @@ const RoomManager: IServiceManager = {
       DatabaseClient.Rooms.getAll().then(setRooms);
     });
     socket.on(MESSAGE.JOIN_ROOM, async (roomId: string) => {
-      const playerAccountId = (await DatabaseClient.ActiveConnections.getBySocketId(socket.id)).account_id;
-      const player = await DatabaseClient.Players.getByAccountId(playerAccountId);
+      const player = await DatabaseClient.Players.getBySocketId(socket.id);
       console.log(player);
       if (!player) return;
       const room = await DatabaseClient.Rooms.getById(roomId);
@@ -32,9 +31,7 @@ const RoomManager: IServiceManager = {
     });
   },
   onDisconnect: async (socket: Socket): Promise<void> => {
-    // throw new Error("Function not implemented.");
-    const activeConnection = await DatabaseClient.ActiveConnections.getBySocketId(socket.id);
-    const player = await DatabaseClient.Players.getByAccountId(activeConnection.account_id);
+    const player = await DatabaseClient.Players.getBySocketId(socket.id);
     if (!player?.id) {
       console.warn(`Player has no ID xD`);
       return;
