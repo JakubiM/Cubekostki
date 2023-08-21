@@ -49,7 +49,7 @@ export default function App() {
       setUser(user);
       if (user) {
         socket.emit(MESSAGE.CREATE_CONNECTION, user?.uid);
-      } else socket.emit(MESSAGE.REMOVE_CONNECTION, socket.id);
+      }
     });
   }, []);
   return (

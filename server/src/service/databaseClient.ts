@@ -14,7 +14,6 @@ import {
 import { FIREBASE_DB } from "../../firebase-config";
 import { IRoom, IRoomDto, buildEmptyRoom } from "../model/room";
 import { IPlayer, IPlayerDto, buildNewPlayer } from "../model/player";
-import { IActiveConnection } from "../model/activeConnection";
 import { IGameSession } from "../model/gameSession";
 import { IGameScore, buildEmptyScore } from "../model/gameScore";
 import { GameType } from "../model/GameType";
@@ -24,7 +23,6 @@ const Collection = {
   GAME_SCORES: "game_scores",
   GAME_SESSIONS: "game_sessions",
   PLAYERS: "players",
-  ACTIVE_CONNECTIONS: "active_connections",
 };
 
 const DatabaseClient = {
@@ -92,6 +90,15 @@ const DatabaseClient = {
           }
         : null;
     },
+    getBySocketId: async (socket_id: string): Promise<IPlayer | null> => {
+      const document = await getDocumentByFieldEquals(Collection.PLAYERS, "socket_id", socket_id);
+      return document
+        ? {
+            id: document.id,
+            ...document.data(),
+          }
+        : null;
+    },
     getByRoomId: async (room_id: string): Promise<IPlayer[]> => {
       const room = (await getDocumentById(Collection.ROOMS, room_id)).data();
       const playerDocuments: DocumentData[] = await getDocumentsByIds(Collection.PLAYERS, room.players_ids);
@@ -100,30 +107,6 @@ const DatabaseClient = {
     update: async (player: IPlayer, id: string): Promise<IPlayer> => {
       await updateDocument(Collection.PLAYERS, player, id);
       return (await getDocumentById(Collection.PLAYERS, id)).data();
-    },
-  },
-  ActiveConnections: {
-    create: async (socket_id: string, account_id: string): Promise<string> => {
-      const newConnection: IActiveConnection = {
-        socket_id: socket_id,
-        account_id: account_id,
-      };
-      return addNewDocument(Collection.ACTIVE_CONNECTIONS, newConnection);
-    },
-    getBySocketId: async (socket_id: string): Promise<IActiveConnection> => {
-      const document = await getDocumentByFieldEquals(Collection.ACTIVE_CONNECTIONS, "socket_id", socket_id);
-      return document
-        ? {
-            id: document.id,
-            ...document.data(),
-          }
-        : null;
-    },
-    deleteBySocketId: async (socket_id: string) =>
-      deleteDocumentByFieldEquals(Collection.ACTIVE_CONNECTIONS, "socket_id", socket_id),
-    deleteAll: async () => {
-      const collectionRef = collection(FIREBASE_DB, Collection.ACTIVE_CONNECTIONS);
-      (await getDocs(collectionRef)).forEach((doc) => deleteDoc(doc.ref));
     },
   },
   GameSessions: {
