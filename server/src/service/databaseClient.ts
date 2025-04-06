@@ -91,7 +91,7 @@ const DatabaseClient = {
         : null;
     },
     getBySocketId: async (socket_id: string): Promise<IPlayer | null> => {
-      const document = await getDocumentByFieldEquals(Collection.PLAYERS, "socket_id", socket_id);
+      const document = await getDocumentByFieldEquals(Collection.PLAYERS, "current_socket_id", socket_id);
       return document
         ? {
             id: document.id,

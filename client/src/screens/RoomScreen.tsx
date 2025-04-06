@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import { Box, Button, Pressable, Text } from "native-base";
 import { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -6,65 +6,68 @@ import { ScreenNavigationProps } from "../../App";
 import { Colors } from "../utils/colors";
 import { useNavigation } from "@react-navigation/native";
 import socket from "../utils/socket";
-import { MESSAGE } from "../model/Messages";
+import { MESSAGE } from "../../../server/src/model/Messages";
+import { IRoomDto } from "../../../server/src/model/room";
 
 export type RoomScreenProps = NativeStackScreenProps<ScreenNavigationProps, "Room">;
 
 export default function RoomScreen({ route }: RoomScreenProps) {
-  const { roomId } = route.params;
+  const [room, setRoom] = useState<IRoomDto>(route.params.room);
   const navigation = useNavigation<NativeStackNavigationProp<ScreenNavigationProps>>();
 
-  const [playerSat, setPlayerSat] = useState<boolean>(false);
+  useEffect(() => {
+    const onRoomUpdate = (room: IRoomDto) => {
+      console.log("onRoomUpdate, room: ", room);
+      setRoom(room);
+    }
 
-  const onChairClicked = () => {
-    console.log("Sitting...");
-    setPlayerSat(!playerSat);
-  };
+    socket.on(MESSAGE.UPDATE_ROOM, onRoomUpdate);
+
+    return () => {
+      socket.off(MESSAGE.UPDATE_ROOM, onRoomUpdate);
+    };
+  }, []);
 
   const onReadyButtonClicked = () => {
     console.log("Player is ready...");
-    socket.emit(MESSAGE.START_GAME, roomId);
-    navigation.navigate("Game");
+    socket.emit(MESSAGE.START_GAME, room.id);
+    // navigation.navigate("Game");
   };
+
+  const isTwoPlayers = () => {
+    return room.players.length > 2;
+  }
 
   const renderRoomPlayers = () => {
     return (
       <Box>
-        <Pressable bg={Colors.BLUE_MUNSELL} boxSize={150} justifyContent="center" marginBottom={10} disabled>
-          <Text fontSize={30} fontWeight="medium" textAlign={"center"}>
-            Player 1
-          </Text>
+        {room.players.map(player => (
+          <Pressable key={player.id} bg={Colors.BLUE_MUNSELL} boxSize={150} justifyContent="center" marginBottom={10} disabled>
+            <Text fontSize={30} fontWeight="medium" textAlign={"center"}>
+              {player.name}
+            </Text>
         </Pressable>
-        <Pressable bg={Colors.ANDROID_GREEN} boxSize={150} justifyContent="center" marginBottom={10} disabled>
-          <Text fontSize={30} fontWeight="medium" textAlign={"center"}>
-            Player 2
-          </Text>
-        </Pressable>
-        <Pressable bg={Colors.CHARCOAL} boxSize={150} justifyContent="center" onPress={onChairClicked}>
-          <Text fontSize={30} fontWeight={playerSat ? "medium" : "light"} textAlign={"center"}>
-            {playerSat ? "Player 3" : "Sit here"}
-          </Text>
-        </Pressable>
+        ))}
       </Box>
     );
   };
 
   return (
     <Box style={styles.container}>
-      <Text style={styles.title}>Room ID: {roomId.substring(0, 5)}</Text>
+      <Text style={styles.title}>Room ID: {room.id.substring(0, 5)}</Text>
       <Text fontSize={10} color="white">
-        Room ID: {roomId}
+        Room ID: {room.id}
       </Text>
       {renderRoomPlayers()}
       <Button
         marginTop={"10%"}
         width={"25%"}
         borderRadius="full"
-        colorScheme={playerSat ? "success" : "error"}
-        disabled={!playerSat}
+        colorScheme={isTwoPlayers() ? "success" : "error"}
+        disabled={!isTwoPlayers()}
         onPress={onReadyButtonClicked}
       >
-        {playerSat ? "Ready" : "Please sit !"}
+        {isTwoPlayers() ? "Ready" : "Waiting for players..."}
       </Button>
     </Box>
   );

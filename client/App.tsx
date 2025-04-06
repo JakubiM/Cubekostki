@@ -12,11 +12,12 @@ import { User, getAuth, onAuthStateChanged } from "firebase/auth";
 import { FIREBASE_AUTH } from "./firebase-config";
 import socket from "./src/utils/socket";
 import { MESSAGE } from "./src/model/Messages";
+import { IRoomDto } from "../server/src/model/room";
 
 export type ScreenNavigationProps = {
   Login: any;
   Room: {
-    roomId: string;
+    room: IRoomDto;
   };
   Dashboard: {
     displayName: string | null;

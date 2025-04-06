@@ -9,8 +9,8 @@ export default function Game() {
     <GameContext>
       <View style={styles.container}>
         <Text>Game</Text>
-        <DicePanel />
         <PokerGameTable />
+        <DicePanel />
       </View>
     </GameContext>
   );
