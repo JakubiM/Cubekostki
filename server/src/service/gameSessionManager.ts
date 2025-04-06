@@ -10,8 +10,7 @@ const isEmptyDiceSet = (dice: number[]): boolean => dice.some((die) => die === 0
 
 const GameSessionManager: IServiceManager = {
   initialize: (socket: Socket): void => {
-    socket.on(MESSAGE.START_GAME, async (roomId: string) => {
-      console.log(`Starting game for room ${roomId}...`);
+    socket.on(MESSAGE.READY, async (roomId: string) => {
       const players = await DatabaseClient.Players.getByRoomId(roomId);
 
       const gameScoresIds: string[] = await Promise.all(

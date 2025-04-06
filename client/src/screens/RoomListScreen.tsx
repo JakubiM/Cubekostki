@@ -7,8 +7,8 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ScreenNavigationProps } from "../../App";
 import socket from "../utils/socket";
 import { IRoomDto } from "../../../server/src/model/room";
-import { MESSAGE } from "../model/Messages";
 import { FontAwesome } from "@expo/vector-icons";
+import { MESSAGE } from "../../../server/src/model/Messages";
 
 export default function RoomListScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ScreenNavigationProps>>();
@@ -19,10 +19,28 @@ export default function RoomListScreen() {
     socket.emit(MESSAGE.GET_ROOMS, setRooms);
   }, []);
 
+  useEffect(() => {
+    const onRoomJoin = (room: IRoomDto) => {
+      console.log("onRoomJoin, room: ", room);
+      navigation.navigate("Room", { room });
+    }
+
+    const onRoomUpdate = () => {
+      socket.emit(MESSAGE.GET_ROOMS, setRooms);
+    }
+
+    socket.on(MESSAGE.UPDATE_ROOM, onRoomUpdate);
+    socket.on(MESSAGE.CLIENT_JOIN_ROOM, onRoomJoin);
+
+    return () => {
+      socket.off(MESSAGE.CLIENT_JOIN_ROOM, onRoomJoin);
+      socket.off(MESSAGE.UPDATE_ROOM, onRoomUpdate);
+    };
+  }, []);
+
   const onRoomClick = (roomId: string) => {
     console.log(`Entering room ${roomId}!`);
     socket.emit(MESSAGE.JOIN_ROOM, roomId);
-    navigation.navigate("Room", { roomId });
   };
 
   const onCreateRoomClick = () => {
