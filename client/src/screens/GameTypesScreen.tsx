@@ -62,6 +62,6 @@ const styles = StyleSheet.create({
   disabledButton: {
     marginBottom: "5%",
     borderRadius: 10,
-    backgroundColor: Colors.CHARCOAL,
+    backgroundColor: Colors.SECONDARY_TEXT,
   },
 });
