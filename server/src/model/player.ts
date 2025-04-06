@@ -6,11 +6,13 @@ export interface IPlayer {
   current_room_id: string;
   current_socket_id: string;
   game_sessions_ids: string[];
+  ready: boolean;
 }
 
 export interface IPlayerDto {
   id: string;
   name: string;
+  ready: boolean;
 }
 
 export const buildNewPlayer = (accountId: string, name: string): IPlayer => ({
@@ -20,9 +22,5 @@ export const buildNewPlayer = (accountId: string, name: string): IPlayer => ({
   current_room_id: "",
   current_socket_id: "",
   game_sessions_ids: [],
-});
-
-export const playerToDto = (id: string, player: IPlayer): IPlayerDto => ({
-  id: id,
-  name: player.name,
+  ready: false,
 });

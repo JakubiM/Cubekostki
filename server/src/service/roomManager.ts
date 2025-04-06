@@ -47,6 +47,7 @@ const RoomManager: IServiceManager = {
       return;
     }
     player.current_room_id = "";
+    player.ready = false;
     const room = await DatabaseClient.Rooms.getById(currentRoomId);
     room.players_ids = room.players_ids.filter((id) => id !== player.id);
     await DatabaseClient.Players.update(player, player.id);

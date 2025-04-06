@@ -43,7 +43,7 @@ const DatabaseClient = {
       const playerDocuments: DocumentData[] = await getDocumentsByIds(Collection.PLAYERS, room.players_ids);
       console.log(`playerDocuments: ${playerDocuments}`);
 
-      const roomPlayersDto: IPlayerDto[] = playerDocuments.map((doc) => ({ id: doc.id, name: doc.data().name }));
+      const roomPlayersDto: IPlayerDto[] = playerDocuments.map((doc) => ({ id: doc.id, name: doc.data().name, ready: doc.data().ready }));
       return {
         id: roomDocument.id,
         host_id: room.host_id,
@@ -60,11 +60,11 @@ const DatabaseClient = {
           const playerDocuments: DocumentData[] = await getDocumentsByIds(Collection.PLAYERS, room.players_ids);
           console.log(`playerDocuments: ${playerDocuments}`);
 
-          const roomPlayersDto: IPlayerDto[] = playerDocuments.map((doc) => ({ id: doc.id, name: doc.data().name }));
+          const roomPlayersDto: IPlayerDto[] = playerDocuments.map((doc) => ({ id: doc.id, name: doc.data().name, ready: doc.data().ready }));
           return {
             id: roomDocument.id,
             host_id: room.host_id,
-            players: roomPlayersDto,
+            players: roomPlayersDto
           };
         })
       );
@@ -85,18 +85,18 @@ const DatabaseClient = {
       const document = await getDocumentByFieldEquals(Collection.PLAYERS, "account_id", account_id);
       return document
         ? {
-            id: document.id,
-            ...document.data(),
-          }
+          id: document.id,
+          ...document.data(),
+        }
         : null;
     },
     getBySocketId: async (socket_id: string): Promise<IPlayer | null> => {
       const document = await getDocumentByFieldEquals(Collection.PLAYERS, "current_socket_id", socket_id);
       return document
         ? {
-            id: document.id,
-            ...document.data(),
-          }
+          id: document.id,
+          ...document.data(),
+        }
         : null;
     },
     getByRoomId: async (room_id: string): Promise<IPlayer[]> => {
@@ -110,15 +110,23 @@ const DatabaseClient = {
     },
   },
   GameSessions: {
-    create: async (players: IPlayer[]) => {
+    create: async (players: IPlayer[]): Promise<string> => {
       const newGameSession: IGameSession = {
         created_date: Timestamp.now(),
         ended: false,
         players: players,
-        players_turns: new Array(players.length),
+        players_turns: players.map((player) => player.current_socket_id),
       };
-      addNewDocument(Collection.GAME_SESSIONS, newGameSession);
+      console.log(newGameSession);
+      return addNewDocument(Collection.GAME_SESSIONS, newGameSession);
     },
+    getById: async (id: string): Promise<IGameSession> => {
+      return (await getDocumentById(Collection.GAME_SESSIONS, id)).data();
+    },
+    update: async (gameScore: IGameSession, id: string): Promise<IGameSession> => {
+      await updateDocument(Collection.GAME_SESSIONS, gameScore, id);
+      return (await getDocumentById(Collection.GAME_SESSIONS, id)).data();
+    }
   },
   GameScores: {
     create: async (game_type: GameType): Promise<string> => {
@@ -130,6 +138,19 @@ const DatabaseClient = {
       };
       return addNewDocument(Collection.GAME_SCORES, newGameScore);
     },
+    getById: async (id: string): Promise<IGameScore | null> => {
+      const document = await getDocumentById(Collection.GAME_SCORES, id);
+      return document
+        ? {
+          id: document.id,
+          ...document.data(),
+        }
+        : null;
+    },
+    update: async (gameScore: IGameScore, id: string): Promise<IGameScore> => {
+      await updateDocument(Collection.GAME_SCORES, gameScore, id);
+      return (await getDocumentById(Collection.GAME_SCORES, id)).data();
+    }
   },
 };
 
@@ -150,7 +171,7 @@ const getAllDocuments = async (collectionName: string): Promise<DocumentData[]> 
   return (await getDocs(collection(FIREBASE_DB, collectionName))).docs;
 };
 
-const getDocumentById = async <T>(collectionName: string, id: string): Promise<DocumentData> => {
+const getDocumentById = async <T> (collectionName: string, id: string): Promise<DocumentData> => {
   const document = await getDoc(doc(FIREBASE_DB, collectionName, id));
   return document;
 };

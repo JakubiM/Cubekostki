@@ -6,5 +6,5 @@ export interface IGameSession {
   created_date: Timestamp;
   ended: boolean;
   players: IPlayer[];
-  players_turns: number[];
+  players_turns: string[]; // players ids stack
 }

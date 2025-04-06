@@ -3,9 +3,14 @@ export const MESSAGE = {
   JOIN_ROOM: "join_room", // client
   CLIENT_JOIN_ROOM: "client_join_room", //client
   GET_ROOMS: "get_rooms", // client
+  GET_PLAYER: "get_player", // client
   UPDATE_ROOM: "update_room", // client
   REGISTER_PLAYER: "register_player", // client
   THROW: "throw", // client
+  UPDATE_HAND: "update_hand", // client
+  UPDATE_SCORE: "update_score", // client
+  GET_SCORE: "get_score", // client
+  CURRENT_PLAYER: "current_player", // client
   READY: "ready", // client
   START_GAME: "start_game", // server
   CREATE_CONNECTION: "create_connection", // client

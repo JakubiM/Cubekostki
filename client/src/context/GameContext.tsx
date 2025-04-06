@@ -1,6 +1,6 @@
 import { PokerScore } from "../model/pokerScore";
 import { createContext, Dispatch, SetStateAction, useState } from "react";
-import { IDieState } from "../model/dieState";
+import { createEmptyHand, IDieState } from "../model/dieState";
 
 const countReps = (diceValues: number[]): number[] => {
   const counts = [0, 0, 0, 0, 0, 0];
@@ -24,38 +24,18 @@ export interface IGameContext {
     valueReps: number[]; // [1,0,0,0,0,5] -> 1 x 'One', 5 x 'Six'
     valuesOnly: number[];
   };
+  canScore: {
+    get: boolean;
+    set: Dispatch<SetStateAction<boolean>>;
+  };
 }
 
 export const GameContext = createContext<IGameContext>({} as IGameContext);
 
 export default ({ children }: { children: React.ReactNode }) => {
   const [scoreData, setScoreData] = useState<PokerScore>(new PokerScore());
-  const [rolledDiceList, setRolledDiceList] = useState<IDieState[]>([
-    {
-      value: 1,
-      selected: false,
-    },
-    {
-      value: 2,
-      selected: false,
-    },
-    {
-      value: 3,
-      selected: false,
-    },
-    {
-      value: 4,
-      selected: false,
-    },
-    {
-      value: 5,
-      selected: false,
-    },
-    {
-      value: 6,
-      selected: false,
-    },
-  ]);
+  const [rolledDiceList, setRolledDiceList] = useState<IDieState[]>(createEmptyHand());
+  const [canScore, setCanScore] = useState<boolean>(false);
 
   const contextValue: IGameContext = {
     scoreData: {
@@ -68,6 +48,10 @@ export default ({ children }: { children: React.ReactNode }) => {
       valuesOnly: !!rolledDiceList ? rolledDiceList.map((dieState) => dieState.value) : [],
       set: setRolledDiceList,
     },
+    canScore: {
+      get: canScore,
+      set: setCanScore,
+    }
   };
 
   return <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>;

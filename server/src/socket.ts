@@ -5,6 +5,7 @@ import PlayerManager from "./service/playerManager";
 import RoomManager from "./service/roomManager";
 import GameSessionManager from "./service/gameSessionManager";
 import ActiveConnectionManager from "./service/activeConnectionsManager";
+import { instrument } from "@socket.io/admin-ui";
 
 export class ServerSocket {
   public static instance: ServerSocket;
@@ -18,8 +19,13 @@ export class ServerSocket {
       pingTimeout: 5000,
       cookie: false,
       cors: {
-        origin: "*",
+        origin: ["https://admin.socket.io", "http://localhost:19006"]
       },
+    });
+
+    instrument(this.io, {
+      mode: "development",
+      auth: false
     });
 
     this.io.on("connect", this.StartListeners);

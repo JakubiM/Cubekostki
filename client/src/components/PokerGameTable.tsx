@@ -1,26 +1,52 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { GameContext } from "../context/GameContext";
 import { getBonusCalculationFunction, getCalculationFunction } from "../utils/pokerSixDiceRecognizer";
 import TableCell from "./TableCell";
+import socket from "../utils/socket";
+import { MESSAGE } from "../../../server/src/model/Messages";
+import { IPlayer } from "../../../server/src/model/player";
 
-export default function PokerGameTable() {
-  const { scoreData, rolledDiceList } = useContext(GameContext);
+export default function PokerGameTable () {
+  const { scoreData, rolledDiceList, canScore } = useContext(GameContext);
+
+  useEffect(() => {
+    // socket.emit(MESSAGE.GET_SCORE, scoreData.set);
+    const onCurrentPlayer = (player: IPlayer) => {
+      console.log("onCurrentPlayer, player: ", player);
+      if (player.current_socket_id === socket.id) {
+        console.log("MY TURN!");
+        canScore.set(true);
+      }
+    }
+
+    socket.on(MESSAGE.CURRENT_PLAYER, onCurrentPlayer);
+
+    return () => {
+      socket.off(MESSAGE.CURRENT_PLAYER, onCurrentPlayer);
+    };
+  }, []);
 
   const onScoreSchoolCellPress = (name: string) => {
+    if (!canScore.get) return;
     const updatedScore = scoreData.get;
     updatedScore.school[name] = getCalculationFunction(name)(rolledDiceList.valueReps);
     scoreData.set((prev) => {
       return { ...prev, ...updatedScore };
     });
+    socket.emit(MESSAGE.UPDATE_SCORE, scoreData.get);
+    canScore.set(false);
   };
 
   const onScoreCellPress = (name: string) => {
+    if (!canScore.get) return;
     const updatedScore = scoreData.get;
     updatedScore[name] = getCalculationFunction(name)(rolledDiceList.valueReps);
     scoreData.set((prev) => {
       return { ...prev, ...updatedScore };
     });
+    socket.emit(MESSAGE.UPDATE_SCORE, scoreData.get);
+    canScore.set(false);
   };
 
   const renderTablePokerSchool = () => {

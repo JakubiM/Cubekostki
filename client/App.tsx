@@ -8,7 +8,7 @@ import GameTypesScreen from "./src/screens/GameTypesScreen";
 import RoomListScreen from "./src/screens/RoomListScreen";
 import RoomScreen from "./src/screens/RoomScreen";
 import LoginScreen from "./src/screens/LoginScreen";
-import { User, getAuth, onAuthStateChanged } from "firebase/auth";
+import { User, onAuthStateChanged } from "firebase/auth";
 import { FIREBASE_AUTH } from "./firebase-config";
 import socket from "./src/utils/socket";
 import { MESSAGE } from "./src/model/Messages";
@@ -24,7 +24,9 @@ export type ScreenNavigationProps = {
   };
   GameTypes: any;
   RoomList: any;
-  Game: any;
+  Game: {
+    room: IRoomDto;
+  };
 };
 
 const RootStack = createNativeStackNavigator();
@@ -45,7 +47,7 @@ const AuthenticatedLayout = () => {
   );
 };
 
-export default function App() {
+export default function App () {
   const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
     onAuthStateChanged(FIREBASE_AUTH, (user) => {

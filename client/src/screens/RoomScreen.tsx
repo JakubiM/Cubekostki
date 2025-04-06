@@ -11,7 +11,7 @@ import { IRoomDto } from "../../../server/src/model/room";
 
 export type RoomScreenProps = NativeStackScreenProps<ScreenNavigationProps, "Room">;
 
-export default function RoomScreen({ route }: RoomScreenProps) {
+export default function RoomScreen ({ route }: RoomScreenProps) {
   const [room, setRoom] = useState<IRoomDto>(route.params.room);
   const navigation = useNavigation<NativeStackNavigationProp<ScreenNavigationProps>>();
 
@@ -21,32 +21,38 @@ export default function RoomScreen({ route }: RoomScreenProps) {
       setRoom(room);
     }
 
+    const onGameStart = () => {
+      console.log("starting Game...");
+      navigation.navigate("Game", { room });
+    }
+
     socket.on(MESSAGE.UPDATE_ROOM, onRoomUpdate);
+    socket.on(MESSAGE.START_GAME, onGameStart);
 
     return () => {
       socket.off(MESSAGE.UPDATE_ROOM, onRoomUpdate);
+      socket.off(MESSAGE.START_GAME, onGameStart);
     };
   }, []);
 
   const onReadyButtonClicked = () => {
-    console.log("Player is ready...");
-    socket.emit(MESSAGE.START_GAME, room.id);
-    // navigation.navigate("Game");
+    console.log(`Player is ready...`);
+    socket.emit(MESSAGE.READY, room.id);
   };
 
   const isTwoPlayers = () => {
-    return room.players.length > 2;
+    return room.players.length > 1;
   }
 
   const renderRoomPlayers = () => {
     return (
       <Box>
         {room.players.map(player => (
-          <Pressable key={player.id} bg={Colors.BLUE_MUNSELL} boxSize={150} justifyContent="center" marginBottom={10} disabled>
+          <Pressable key={player.id} bg={player.ready ? Colors.ANDROID_GREEN : Colors.BLUE_MUNSELL} boxSize={150} justifyContent="center" marginBottom={10} disabled>
             <Text fontSize={30} fontWeight="medium" textAlign={"center"}>
               {player.name}
             </Text>
-        </Pressable>
+          </Pressable>
         ))}
       </Box>
     );

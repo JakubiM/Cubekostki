@@ -1,38 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Die from "./Die";
 import { useContext } from "react";
 import { IGameContext, GameContext } from "../context/GameContext";
 import socket from "../utils/socket";
-import { IDieState } from "../model/dieState";
-import { MESSAGE } from "../model/Messages";
+import { createEmptyHand, IDieState } from "../model/dieState";
 import { Button } from "native-base";
+import { MESSAGE } from "../../../server/src/model/Messages";
+import { IPlayer } from "../../../server/src/model/player";
 
-export default function DicePanel() {
+const MAX_THROWS = 3;
+
+export default function DicePanel () {
   const { rolledDiceList } = useContext<IGameContext>(GameContext);
   const [throwCount, setThrowCount] = useState<number>(0);
 
-  const setDiceList = (newDice: IDieState[]) => {
-    console.log("Setting new dice!");
-    rolledDiceList.set(newDice);
-  };
+
+  useEffect(() => {
+    const onHandUpdate = (newDice: IDieState[]) => {
+      console.log("onHandUpdate, newDice: ", newDice);
+      rolledDiceList.set(newDice);
+    }
+
+    const onCurrentPlayer = (player: IPlayer) => {
+      console.log("onCurrentPlayer, player: ", player);
+      if (player.current_socket_id === socket.id) {
+        setThrowCount(0);
+        rolledDiceList.set(createEmptyHand());
+      }
+    }
+
+    socket.on(MESSAGE.CURRENT_PLAYER, onCurrentPlayer);
+    socket.on(MESSAGE.UPDATE_HAND, onHandUpdate);
+
+    return () => {
+      socket.off(MESSAGE.UPDATE_HAND, onHandUpdate);
+      socket.off(MESSAGE.CURRENT_PLAYER, onCurrentPlayer);
+    };
+  }, []);
 
   const rollDices = () => {
-    console.log("Rolling dices...");
-    const updatedDice = [...rolledDiceList.get].map((dieState) =>
-      !dieState.selected
-        ? {
-            selected: false,
-            value: Math.floor(Math.random() * 6) + 1,
-          }
-        : dieState
-    );
+    if (throwCount >= MAX_THROWS) {
+      console.log("You can't throw more!");
+      return;
+    }
 
-    rolledDiceList.set(updatedDice);
-    // if (rolledDiceList.set != null) {
-    //   console.log("rolledDiceList before: ", rolledDiceList.set);
-    //   socket.emit(MESSAGE.THROW, rolledDiceList.set, rolledDiceList.get);
-    // }
+    if (rolledDiceList.set != null) {
+      socket.emit(MESSAGE.THROW, rolledDiceList.get);
+    }
 
     setThrowCount((prevCount) => prevCount + 1);
   };

@@ -2,6 +2,7 @@ import DatabaseClient from "./service/databaseClient";
 import http from "http";
 import express from "express";
 import { ServerSocket } from "./socket";
+import cors from "cors";
 
 const application = express();
 
@@ -61,6 +62,11 @@ application.use((req, res, next) => {
     message: error.message,
   });
 });
-
+// application.use(cors({
+//   origin: '*',
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   credentials: true,
+//   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+// }));
 /** Listen */
 httpServer.listen(1337, () => console.info(`Server is running on 1337 :\)`));
